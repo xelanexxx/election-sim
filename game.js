@@ -1,868 +1,911 @@
 /**
- * КОНФИГУРАЦИЯ СТРАН, ПАРТИЙ И МАГАЗИНА УЛУЧШЕНИЙ
+ * СИНТЕЗАТОР ЗВУКОВ (Web Audio API)
  */
-const CONFIG = {
-  countries: {
-    usa: {
-      id: "usa",
-      name: "США",
-      flag: "🇺🇸",
-      systemName: "Коллегия выборщиков",
-      description: "Победитель забирает всё в каждом штате. Для победы требуется 270 выборщиков.",
-      victoryCondition: "Набрать 270 выборщиков через контроль колеблющихся штатов.",
-      parties: [
-        {
-          id: "usa_checks",
-          name: "Партия Бесконечных Чеков",
-          icon: "💵",
-          color: "#10b981",
-          buffs: { voteMultiplier: 1.25, stealthMultiplier: 0.90, kickbackMultiplier: 1.40 },
-          desc: "Решает любые вопросы за счет лоббизма и щедрых откатов."
-        },
-        {
-          id: "usa_drones",
-          name: "Ястребы Ипотечного Дрона",
-          icon: "🦅",
-          color: "#3b82f6",
-          buffs: { voteMultiplier: 1.40, stealthMultiplier: 0.80, kickbackMultiplier: 1.00 },
-          desc: "Агрессивная мобилизация электората под лозунгами внешней безопасности."
-        },
-        {
-          id: "usa_tech",
-          name: "Техно-Олигархат Марса",
-          icon: "🚀",
-          color: "#ef4444",
-          buffs: { voteMultiplier: 1.10, stealthMultiplier: 1.35, kickbackMultiplier: 0.80 },
-          desc: "Алгоритмы соцсетей обеспечивают высочайший уровень скрытности."
-        }
-      ]
-    },
-    russia: {
-      id: "russia",
-      name: "Россия",
-      flag: "🇷🇺",
-      systemName: "Супербольшинство",
-      description: "Требуется набрать 5 000 000 голосов и удержать долю 85%+ против прироста у ботов.",
-      victoryCondition: "Собрать 5 млн голосов с долей 85%+ к закрытию участков.",
-      parties: [
-        {
-          id: "ru_stability",
-          name: "Единый Стабилитет",
-          icon: "🐻",
-          color: "#2563eb",
-          buffs: { voteMultiplier: 1.50, stealthMultiplier: 0.75, kickbackMultiplier: 1.30 },
-          desc: "Тяжелый административный ресурс: вбросы огромны, но привлекают внимание."
-        },
-        {
-          id: "ru_budget",
-          name: "Честный Бюджетник",
-          icon: "📋",
-          color: "#dc2626",
-          buffs: { voteMultiplier: 1.20, stealthMultiplier: 1.20, kickbackMultiplier: 0.90 },
-          desc: "Корпоративная дисциплина без лишнего публичного шума."
-        },
-        {
-          id: "ru_curbs",
-          name: "Союз Реновации и Бордюров",
-          icon: "🚜",
-          color: "#d97706",
-          buffs: { voteMultiplier: 1.10, stealthMultiplier: 1.00, kickbackMultiplier: 1.60 },
-          desc: "Масштабные сметы приносят максимальный объем откатов."
-        }
-      ]
-    },
-    germany: {
-      id: "germany",
-      name: "Германия",
-      flag: "🇩🇪",
-      systemName: "Парламент и Коалиция",
-      description: "Голоса дают места в Бундестаге. Недостающие мандаты докупаются за откаты.",
-      victoryCondition: "Сформировать коалицию из 301+ кресла через голоса и выкуп партий.",
-      parties: [
-        {
-          id: "de_ordnung",
-          name: "Бюрократический Орднунг",
-          icon: "📂",
-          color: "#64748b",
-          buffs: { voteMultiplier: 1.00, stealthMultiplier: 1.45, kickbackMultiplier: 0.90 },
-          desc: "Бюрократические формуляры скрывают несоответствия в подсчетах."
-        },
-        {
-          id: "de_green",
-          name: "Зелёный Карбоновый Налог",
-          icon: "🥦",
-          color: "#16a34a",
-          buffs: { voteMultiplier: 1.20, stealthMultiplier: 1.15, kickbackMultiplier: 1.00 },
-          desc: "Стабильный электорат с выверенным профилем."
-        },
-        {
-          id: "de_autobahn",
-          name: "Союз Автобанов и Дизеля",
-          icon: "🏎️",
-          color: "#ca8a04",
-          buffs: { voteMultiplier: 1.35, stealthMultiplier: 0.85, kickbackMultiplier: 1.25 },
-          desc: "Промышленное лобби гарантирует солидный кэш."
-        }
-      ]
-    },
-    france: {
-      id: "france",
-      name: "Франция",
-      flag: "🇫🇷",
-      systemName: "Два тура",
-      description: "Квалификация в 1-м туре и прямое процентное перетягивание каната во 2-м туре.",
-      victoryCondition: "Выйти во 2-й тур и победить 1 на 1 против искусственного интеллекта.",
-      parties: [
-        {
-          id: "fr_strike",
-          name: "Синдикат Бесконечной Забастовки",
-          icon: "🥐",
-          color: "#b91c1c",
-          buffs: { voteMultiplier: 1.30, stealthMultiplier: 0.85, kickbackMultiplier: 1.10 },
-          desc: "Уличная активность мгновенно сдвигает чашу весов."
-        },
-        {
-          id: "fr_wine",
-          name: "Клуб Божоле и Ренессанса",
-          icon: "🍷",
-          color: "#7c3aed",
-          buffs: { voteMultiplier: 1.10, stealthMultiplier: 1.10, kickbackMultiplier: 1.40 },
-          desc: "Связи и закрытые приемы генерируют солидный теневой бюджет."
-        },
-        {
-          id: "fr_vest",
-          name: "Движение Умеренного Возмущения",
-          icon: "🦺",
-          color: "#eab308",
-          buffs: { voteMultiplier: 1.45, stealthMultiplier: 0.70, kickbackMultiplier: 0.95 },
-          desc: "Массовый приток голосов ценой быстрого роста палева."
-        }
-      ]
-    },
-    uk: {
-      id: "uk",
-      name: "Великобритания",
-      flag: "🇬🇧",
-      systemName: "Мажоритарные округа (FPTP)",
-      description: "10 округов. Необходимо вручную переключать вбросы, лидируя минимум в 6 из них.",
-      victoryCondition: "Удержать большинство минимум в 6 округах одновременно.",
-      parties: [
-        {
-          id: "uk_tea",
-          name: "Джентльмены Чайного Фонда",
-          icon: "☕",
-          color: "#1e3a8a",
-          buffs: { voteMultiplier: 1.10, stealthMultiplier: 1.30, kickbackMultiplier: 1.25 },
-          desc: "Традиционная невозмутимость снижает подозрительность комиссий."
-        },
-        {
-          id: "uk_offshore",
-          name: "Лорды Офшорного Тумана",
-          icon: "🎩",
-          color: "#0f766e",
-          buffs: { voteMultiplier: 1.20, stealthMultiplier: 1.25, kickbackMultiplier: 1.35 },
-          desc: "Мастера офшорных схем и скрытого распределения ресурсов."
-        },
-        {
-          id: "uk_tabloid",
-          name: "Гильдия Желтых Таблоидов",
-          icon: "📰",
-          color: "#e11d48",
-          buffs: { voteMultiplier: 1.40, stealthMultiplier: 0.75, kickbackMultiplier: 1.00 },
-          desc: "Шумная кампания штампует голоса, но привлекает скандалы."
-        }
-      ]
+class AudioController {
+  constructor() {
+    this.ctx = null;
+    this.enabled = true;
+  }
+  init() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) this.ctx = new AC();
     }
-  },
+  }
+  tone(freq, type = 'sine', duration = 0.08, vol = 0.1) {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+    g.gain.setValueAtTime(vol, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+    osc.connect(g);
+    g.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + duration);
+  }
+  click() { this.tone(350, 'triangle', 0.04, 0.1); }
+  cash() {
+    this.tone(900, 'sine', 0.06, 0.12);
+    setTimeout(() => this.tone(1350, 'sine', 0.09, 0.15), 50);
+  }
+  alarm() {
+    this.tone(480, 'sawtooth', 0.25, 0.15);
+    setTimeout(() => this.tone(640, 'sawtooth', 0.25, 0.15), 200);
+  }
+  stamp() { this.tone(90, 'square', 0.2, 0.25); }
+}
+const sfx = new AudioController();
 
-  // Шаг 4: Дерево улучшений для магазина
-  upgrades: {
-    // Вкладка 1: Махинации (Покупаются за fakedVotes)
-    machinations: [
-      {
-        id: "dropper_1",
-        name: "Ручной карусельщик",
-        icon: "🚶",
-        type: "dropper",
-        cost: 50,
-        effectValue: 2, // +2 голоса/сек
-        desc: "Подвозит группы проверенных избирателей на микроавтобусе (+2 бюлл./сек)."
-      },
-      {
-        id: "dropper_2",
-        name: "Студенческий рейд",
-        icon: "🎓",
-        type: "dropper",
-        cost: 250,
-        effectValue: 8, // +8 голосов/сек
-        desc: "Организованный десант общежитий с готовыми бюллетенями (+8 бюлл./сек)."
-      },
-      {
-        id: "upgrader_1",
-        name: "Копировальный лоток",
-        icon: "🖨️",
-        type: "upgrader",
-        cost: 800,
-        effectValue: 1.35, // множитель клика и дохода
-        desc: "Умножающие ворота на конвейере: увеличивает ценность каждого бюллетеня на +35%."
-      },
-      {
-        id: "dropper_3",
-        name: "Пневмопочта из депо",
-        icon: "📦",
-        type: "dropper",
-        cost: 2500,
-        effectValue: 35, // +35 голосов/сек
-        desc: "Прямой пневматический спавнер бюллетеней прямо в дно стационарной урны (+35 бюлл./сек)."
-      },
-      {
-        id: "upgrader_2",
-        name: "Нейросетевая роспись",
-        icon: "🤖",
-        type: "upgrader",
-        cost: 7500,
-        effectValue: 1.60,
-        desc: "ИИ подделывает подписи в списках избирателей: дает +60% к мощности конвейера."
-      }
+/**
+ * КОНФИГУРАЦИЯ СТРАН И ТЕХНОЛОГИЙ
+ */
+const GAME_CONFIG = {
+  countries: [
+    { id: "russia", name: "Россия", flag: "🇷🇺", party: "«Единая Россия»", targetTurnout: 80, targetVotesPct: 85 },
+    { id: "usa", name: "США (Свинг-штат)", flag: "🇺🇸", party: "Комитет штата", targetTurnout: 68, targetVotesPct: 52 },
+    { id: "germany", name: "Германия", flag: "🇩🇪", party: "ХДС/ХСС", targetTurnout: 75, targetVotesPct: 40 },
+    { id: "france", name: "Франция", flag: "🇫🇷", party: "«Возрождение»", targetTurnout: 72, targetVotesPct: 50.5 }
+  ],
+  precinctTypes: [
+    { type: "school", name: "Школа №", baseLoyalty: 0.85, observers: 1, equip: "Обычные урны" },
+    { type: "factory", name: "Заводоуправление №", baseLoyalty: 0.95, observers: 0, equip: "Обычные урны" },
+    { type: "hospital", name: "Горбольница №", baseLoyalty: 0.98, observers: 0, equip: "Переносные ящики" },
+    { type: "uni", name: "Университет / Общежитие", baseLoyalty: 0.40, observers: 3, equip: "КОИБ-2010" },
+    { type: "military", name: "Гарнизон закрытого типа", baseLoyalty: 1.00, observers: 0, equip: "Опечатанные урны" },
+    { type: "residential", name: "ДК Микрорайона", baseLoyalty: 0.65, observers: 2, equip: "КОИБ-2017" }
+  ],
+  techTree: {
+    admin: [
+      { id: "adm_1", name: "График явки цехов", cost: 800, desc: "Рабочие заводов идут голосовать ровно к 09:00 (+15% скорость привода)" },
+      { id: "adm_2", name: "Замена пломб сейф-пакетов", cost: 2200, desc: "Специальный фен для вскрытия пломб без следов (-20% палева от ночных вбросов)" },
+      { id: "adm_3", name: "Сводный протокол в ТИК", cost: 6000, desc: "Переписывание данных прямо в территориальной комиссии минуя УИК" }
     ],
-
-    // Вкладка 2: Конспирация (Покупаются за corruptionFunds)
-    conspiracy: [
-      {
-        id: "stealth_1",
-        name: "Плотные шторы на урны",
-        icon: "🎪",
-        cost: 150,
-        stealthBonus: 0.25, // +25% к фактору скрытности
-        desc: "Затеняет обзор наблюдателям: снижает генерацию палева на 25%."
-      },
-      {
-        id: "stealth_2",
-        name: "Фейковый сбой камер",
-        icon: "📹",
-        cost: 600,
-        stealthBonus: 0.35,
-        desc: "Имитация 'проблем с интернет-каналом' на 15 минут (+35% к скрытности)."
-      },
-      {
-        id: "stealth_3",
-        name: "Подкуп экзит-поллов",
-        icon: "📊",
-        cost: 2000,
-        stealthBonus: 0.50,
-        desc: "Социологи на выходе публикуют нужные цифры, сглаживая шум (+50% к скрытности)."
-      },
-      {
-        id: "stealth_4",
-        name: "Боты в комментариях",
-        icon: "💬",
-        cost: 6500,
-        stealthBonus: 0.75,
-        desc: "Тысячи аккаунтов топят любые видеозаписи вбросов во флуде (+75% к скрытности)."
-      }
+    deg: [
+      { id: "deg_1", name: "Электронные терминалы (ТЭГ)", cost: 1200, desc: "Внесение голосов без бумажных бюллетеней (+25 бюлл/сек на участках)" },
+      { id: "deg_2", name: "Анонимизация блокчейна ДЭГ", cost: 3500, desc: "Внешний аудит видит только зашифрованные хеши (+40% скрытности)" },
+      { id: "deg_3", name: "Автогенератор ключа расшифровки", cost: 8500, desc: "Сброс 200,000 электронных голосов в последние 5 минут" }
+    ],
+    force: [
+      { id: "for_1", name: "Операция «Ложное минирование»", cost: 1500, desc: "Эвакуация участка на 30 мин при визите оппозиционных юристов" },
+      { id: "for_2", name: "Административные аресты активистов", cost: 3800, desc: "Удаление наблюдателей с участков за нарушение порядка" },
+      { id: "for_3", name: "Режим закрытого объекта", cost: 7500, desc: "Полный запрет видеосъемки и прямых трансляций" }
     ]
   }
 };
 
 /**
- * ШАГ 2: СОСТОЯНИЕ ИГРЫ (gameState)
+ * СОСТОЯНИЕ СИМУЛЯЦИИ (STATE)
  */
-const INITIAL_GAME_STATE = {
-  fakedVotes: 0,
-  corruptionFunds: 0,
-  wonElections: 0,
-  conqueredCountries: [],
-  currentCountry: null,
-  currentParty: null,
+const state = {
+  role: "curator", // "curator" или "observer"
+  country: GAME_CONFIG.countries[0],
+  gameMinutes: 8 * 60, // 08:00
+  timeSpeed: 1,
+  isPaused: false,
+  isGameOver: false,
+  
+  // Финансы и ресурсы
+  fakedVotesTotal: 0,
+  corruptionFunds: 1500,
+  officialBudget: 10000,
   suspicion: 0,
-  isScandalActive: false,
-  scandalTimeRemaining: 0,
-  purchasedUpgrades: [] // id купленных апгрейдов
+  
+  // Участки округа (16 УИК)
+  precincts: [],
+  selectedPrecinctId: 1,
+
+  // Прокачка и разведка
+  unlockedTechs: [],
+  intelQuality: 0.15, // точность соцопросов
+  smartVoteIntensity: 0.25, // напор оппозиции
+
+  // Задачи начальства
+  activeCall: null,
+  callTimerSec: 0,
+
+  // Статистика инцидентов
+  incidents: []
 };
 
-let gameState = { ...INITIAL_GAME_STATE };
-
 /**
- * РАСЧЕТ ИТОГОВЫХ МНОЖИТЕЛЕЙ
+ * ИНИЦИАЛИЗАЦИЯ УЧАСТКОВ (УИК)
  */
-function getPrestigeMultiplier() {
-  // +50% за каждые выигранные выборы
-  return 1 + (gameState.wonElections * 0.50);
-}
-
-function getPartyBuffs() {
-  if (!gameState.currentCountry || !gameState.currentParty) {
-    return { voteMultiplier: 1.0, stealthMultiplier: 1.0, kickbackMultiplier: 1.0 };
+function generatePrecincts() {
+  state.precincts = [];
+  for (let i = 1; i <= 16; i++) {
+    const typeModel = GAME_CONFIG.precinctTypes[i % GAME_CONFIG.precinctTypes.length];
+    const totalVoters = 1800 + Math.floor(Math.random() * 800);
+    state.precincts.push({
+      id: 1400 + i,
+      title: `${typeModel.name} ${1400 + i}`,
+      typeName: typeModel.type,
+      equip: typeModel.equip,
+      votersTotal: totalVoters,
+      realVoted: Math.floor(totalVoters * 0.08), // явка на утро
+      fakedVoted: 0,
+      loyalty: typeModel.baseLoyalty,
+      observersCount: typeModel.observers,
+      powerCut: false,
+      sanitized: false,
+      smartVoteCandidateVotes: 0,
+      govCandidateVotes: 0
+    });
   }
-  const country = CONFIG.countries[gameState.currentCountry];
-  const party = country.parties.find(p => p.id === gameState.currentParty);
-  return party ? party.buffs : { voteMultiplier: 1.0, stealthMultiplier: 1.0, kickbackMultiplier: 1.0 };
-}
-
-function getUpgraderMultiplier() {
-  let mult = 1.0;
-  CONFIG.upgrades.machinations.forEach(u => {
-    if (u.type === "upgrader" && gameState.purchasedUpgrades.includes(u.id)) {
-      mult *= u.effectValue;
-    }
-  });
-  return mult;
-}
-
-function getFinalVoteMultiplier() {
-  const party = getPartyBuffs();
-  const prestige = getPrestigeMultiplier();
-  const upgrader = getUpgraderMultiplier();
-  return party.voteMultiplier * prestige * upgrader;
-}
-
-function getFinalStealthMultiplier() {
-  const party = getPartyBuffs();
-  const prestige = getPrestigeMultiplier();
-  
-  let gearBonus = 0;
-  CONFIG.upgrades.conspiracy.forEach(item => {
-    if (gameState.purchasedUpgrades.includes(item.id)) {
-      gearBonus += item.stealthBonus;
-    }
-  });
-
-  return (party.stealthMultiplier + gearBonus) * prestige;
-}
-
-function getFinalKickbackMultiplier() {
-  const party = getPartyBuffs();
-  const prestige = getPrestigeMultiplier();
-  return party.kickbackMultiplier * prestige;
-}
-
-function getPassiveVotesPerSec() {
-  let baseVotes = 0;
-  CONFIG.upgrades.machinations.forEach(u => {
-    if (u.type === "dropper" && gameState.purchasedUpgrades.includes(u.id)) {
-      baseVotes += u.effectValue;
-    }
-  });
-  return baseVotes * getFinalVoteMultiplier();
 }
 
 /**
- * ИГРОВОЙ ЦИКЛ (requestAnimationFrame)
+ * ИГРОВОЙ ЦИКЛ (RAF)
  */
-let lastTimestamp = performance.now();
-let autoSaveTimer = 0;
+let lastFrameTime = performance.now();
 
-function gameLoop(currentTimestamp) {
-  const dt = (currentTimestamp - lastTimestamp) / 1000; // секунды
-  lastTimestamp = currentTimestamp;
+function simulationLoop(now) {
+  const dt = (now - lastFrameTime) / 1000;
+  lastFrameTime = now;
 
-  updateSimulation(dt);
+  if (!state.isPaused && !state.isGameOver) {
+    tickSimulation(dt * state.timeSpeed);
+  }
   renderUI();
-
-  // Автосохранение каждые 3 секунды
-  autoSaveTimer += dt;
-  if (autoSaveTimer >= 3) {
-    saveGame();
-    autoSaveTimer = 0;
-  }
-
-  requestAnimationFrame(gameLoop);
-}
-
-function updateSimulation(dt) {
-  if (!gameState.currentCountry || !gameState.currentParty) return;
-
-  // Обработка активного скандала (заморозка)
-  if (gameState.isScandalActive) {
-    gameState.scandalTimeRemaining -= dt;
-    if (gameState.scandalTimeRemaining <= 0) {
-      gameState.isScandalActive = false;
-      gameState.suspicion = 30; // Спадение палева после проверки
-    }
-    return; // Все начисления заблокированы во время аудита
-  }
-
-  // Пассивный доход от дропперов
-  const passiveVotes = getPassiveVotesPerSec();
-  if (passiveVotes > 0) {
-    const gained = passiveVotes * dt;
-    gameState.fakedVotes += gained;
-
-    // Пассивный прирост палева с учетом скрытности
-    const stealth = Math.max(0.2, getFinalStealthMultiplier());
-    const suspicionDelta = (gained * 0.12) / stealth;
-    gameState.suspicion = Math.min(100, gameState.suspicion + suspicionDelta);
-  }
-
-  // Естественное рассеивание палева со временем (0.8% в сек)
-  if (gameState.suspicion > 0) {
-    gameState.suspicion = Math.max(0, gameState.suspicion - (0.8 * dt));
-  }
-
-  // Проверка на 100% палева -> Старт Скандала
-  if (gameState.suspicion >= 100) {
-    triggerScandal();
-  }
-}
-
-function triggerScandal() {
-  gameState.isScandalActive = true;
-  gameState.scandalTimeRemaining = 10; // 10 секунд заморозки
+  requestAnimationFrame(simulationLoop);
 }
 
 /**
- * РУЧНОЙ ВБРОС И КЛИКЕРНЫЕ ЭФФЕКТЫ
+ * ШАГ СИМУЛЯЦИИ ВО ВРЕМЕНИ
  */
-function handleManualDrop(e) {
-  if (gameState.isScandalActive) return;
+function tickSimulation(dtSeconds) {
+  // 1 реальная секунда = 1.5 игровых минут
+  state.gameMinutes += dtSeconds * 1.5;
+  const currentHour = state.gameMinutes / 60;
 
-  const basePower = 1;
-  const power = Math.max(1, Math.round(basePower * getFinalVoteMultiplier()));
-  
-  gameState.fakedVotes += power;
+  // Фазы дня
+  updateDayPhase(currentHour);
 
-  // Прирост палева от ручного клика
-  const stealth = Math.max(0.2, getFinalStealthMultiplier());
-  const addedSuspicion = (1.8 / stealth);
-  gameState.suspicion = Math.min(100, gameState.suspicion + addedSuspicion);
+  // Приток реальных избирателей и оппозиции
+  state.precincts.forEach(p => {
+    let turnoutSpeed = 0.4;
+    // Утренний привод цехов (08:00 - 11:00)
+    if (currentHour >= 8 && currentHour < 11) turnoutSpeed = 1.1;
+    // Обед и надомники (12:00 - 15:00)
+    if (currentHour >= 12 && currentHour < 15) turnoutSpeed = 0.5;
+    // Вечерний поток недовольных (17:00 - 20:00)
+    if (currentHour >= 17 && currentHour < 20) turnoutSpeed = 1.4;
 
-  // Создание всплывающего числа (+X)
-  createFloatingNumber(`+${power}`, e);
-
-  if (gameState.suspicion >= 100) {
-    triggerScandal();
-  }
-}
-
-function createFloatingNumber(text, event) {
-  const container = document.getElementById("floatingNumbersContainer");
-  const el = document.createElement("div");
-  el.className = "floating-number";
-  el.textContent = text;
-
-  // Точные координаты клика внутри кнопки
-  const rect = event.currentTarget.getBoundingClientRect();
-  const x = event.clientX ? (event.clientX - rect.left) : (rect.width / 2);
-  const y = event.clientY ? (event.clientY - rect.top) : (rect.height / 2);
-
-  el.style.left = `${x}px`;
-  el.style.top = `${y}px`;
-
-  container.appendChild(el);
-  setTimeout(() => el.remove(), 850);
-}
-
-/**
- * ОТМЫВАНИЕ ГОЛОСОВ В КЭШ
- */
-function handleLaunder() {
-  const cost = 100;
-  if (gameState.fakedVotes < cost || gameState.isScandalActive) return;
-
-  const reward = Math.round(100 * getFinalKickbackMultiplier());
-  gameState.fakedVotes -= cost;
-  gameState.corruptionFunds += reward;
-}
-
-/**
- * ШАГ 4: ЛОГИКА МАГАЗИНА УЛУЧШЕНИЙ (ЦЕПОЧКИ ПОКУПОК)
- */
-function renderUpgradesShop() {
-  renderMachinationsTab();
-  renderConspiracyTab();
-}
-
-function renderMachinationsTab() {
-  const container = document.getElementById("machinationsList");
-  container.innerHTML = "";
-
-  const list = CONFIG.upgrades.machinations;
-  for (let i = 0; i < list.length; i++) {
-    const item = list[i];
-    const isBought = gameState.purchasedUpgrades.includes(item.id);
-    const prevBought = i === 0 || gameState.purchasedUpgrades.includes(list[i - 1].id);
-
-    const card = document.createElement("div");
-    card.className = `upgrade-card ${!prevBought ? "locked" : ""}`;
-
-    if (!prevBought) {
-      card.innerHTML = `
-        <div class="upgrade-header">
-          <span class="upgrade-icon">🔒</span>
-          <div class="upgrade-title-box">
-            <h4 class="upgrade-title">[ЗАСЕКРЕЧЕНО: УРОВЕНЬ ${i + 1}]</h4>
-            <span class="upgrade-level">Требуется предыдущий шаг</span>
-          </div>
-        </div>
-        <p class="upgrade-desc">Доступ к этому узлу заблокирован до модернизации предыдущего звена конвейера.</p>
-      `;
-    } else {
-      const affordable = gameState.fakedVotes >= item.cost;
-      card.innerHTML = `
-        <div class="upgrade-header">
-          <span class="upgrade-icon">${item.icon}</span>
-          <div class="upgrade-title-box">
-            <h4 class="upgrade-title">${item.name}</h4>
-            <span class="upgrade-level">${item.type === "dropper" ? "Дроппер" : "Умножающие ворота"}</span>
-          </div>
-        </div>
-        <p class="upgrade-desc">${item.desc}</p>
-        <div class="upgrade-footer">
-          <span class="upgrade-price">🗳️ ${item.cost.toLocaleString("ru-RU")}</span>
-          <button class="btn-buy ${isBought ? "maxed" : (affordable ? "affordable" : "unaffordable")}" 
-                  ${isBought || !affordable ? "disabled" : ""} 
-                  data-upgrade-id="${item.id}">
-            ${isBought ? "Куплено ✓" : "Установить"}
-          </button>
-        </div>
-      `;
-
-      if (!isBought && affordable) {
-        card.querySelector(".btn-buy").addEventListener("click", () => buyUpgrade(item.id, "fakedVotes", item.cost));
+    const arrived = Math.random() < 0.6 ? Math.floor(turnoutSpeed * dtSeconds * 3) : 0;
+    if (p.realVoted + arrived <= p.votersTotal) {
+      p.realVoted += arrived;
+      // Оппозиция через «Умное голосование» консолидирует протест
+      if (Math.random() < state.smartVoteIntensity) {
+        p.smartVoteCandidateVotes += arrived;
+      } else {
+        p.govCandidateVotes += Math.floor(arrived * p.loyalty);
       }
     }
+  });
 
-    container.appendChild(card);
+  // Пассивное рассеивание палева
+  if (state.suspicion > 0) {
+    state.suspicion = Math.max(0, state.suspicion - (0.5 * dtSeconds));
   }
-}
 
-function renderConspiracyTab() {
-  const container = document.getElementById("conspiracyList");
-  container.innerHTML = "";
+  // Контрудары оппозиции (случайные медиа-бомбы)
+  if (Math.random() < 0.003 * dtSeconds * 60) {
+    triggerOppositionCounterstrike();
+  }
 
-  const list = CONFIG.upgrades.conspiracy;
-  for (let i = 0; i < list.length; i++) {
-    const item = list[i];
-    const isBought = gameState.purchasedUpgrades.includes(item.id);
-    const prevBought = i === 0 || gameState.purchasedUpgrades.includes(list[i - 1].id);
-
-    const card = document.createElement("div");
-    card.className = `upgrade-card ${!prevBought ? "locked" : ""}`;
-
-    if (!prevBought) {
-      card.innerHTML = `
-        <div class="upgrade-header">
-          <span class="upgrade-icon">🕶️</span>
-          <div class="upgrade-title-box">
-            <h4 class="upgrade-title">[ЗАСЕКРЕЧЕННЫЙ ПРОТОКОЛ]</h4>
-            <span class="upgrade-level">Гриф секретности</span>
-          </div>
-        </div>
-        <p class="upgrade-desc">Купите предыдущее стелс-оборудование для расширения сети прикрытия.</p>
-      `;
-    } else {
-      const affordable = gameState.corruptionFunds >= item.cost;
-      card.innerHTML = `
-        <div class="upgrade-header">
-          <span class="upgrade-icon">${item.icon}</span>
-          <div class="upgrade-title-box">
-            <h4 class="upgrade-title">${item.name}</h4>
-            <span class="upgrade-level">Стелс-оборудование</span>
-          </div>
-        </div>
-        <p class="upgrade-desc">${item.desc}</p>
-        <div class="upgrade-footer">
-          <span class="upgrade-price" style="color: var(--cash-color);">💵 $${item.cost.toLocaleString("ru-RU")}</span>
-          <button class="btn-buy ${isBought ? "maxed" : (affordable ? "affordable" : "unaffordable")}" 
-                  ${isBought || !affordable ? "disabled" : ""} 
-                  data-upgrade-id="${item.id}">
-            ${isBought ? "Установлено ✓" : "Подкупить"}
-          </button>
-        </div>
-      `;
-
-      if (!isBought && affordable) {
-        card.querySelector(".btn-buy").addEventListener("click", () => buyUpgrade(item.id, "corruptionFunds", item.cost));
-      }
+  // Проверка звонка начальства
+  if (state.activeCall) {
+    state.callTimerSec -= dtSeconds;
+    if (state.callTimerSec <= 0) {
+      failCallTask();
     }
+  } else if (Math.random() < 0.002 * dtSeconds * 60 && currentHour < 19) {
+    triggerBossCall();
+  }
 
-    container.appendChild(card);
+  // 100% ПАЛЕВА -> СКАНДАЛ И АРЕСТ
+  if (state.suspicion >= 100) {
+    triggerEndgame(false, "Следственный комитет и наблюдатели вскрыли факты массовых фальсификаций. Кампания сорвана, организаторы арестованы.");
+  }
+
+  // Наступление 20:00 -> закрытие участков и подведение итогов
+  if (state.gameMinutes >= 20 * 60) {
+    finishElectionDay();
   }
 }
 
-function buyUpgrade(id, currencyField, cost) {
-  if (gameState[currencyField] < cost) return;
-  gameState[currencyField] -= cost;
-  gameState.purchasedUpgrades.push(id);
-  saveGame();
-  renderUpgradesShop();
+function updateDayPhase(hour) {
+  const badge = document.getElementById("dayPhaseBadge");
+  if (hour < 11) {
+    badge.textContent = "ФАЗА: УТРЕННИЙ ПРИВОД БЮДЖЕТНИКОВ";
+  } else if (hour < 16) {
+    badge.textContent = "ФАЗА: НАДОМНОЕ ГОЛОСОВАНИЕ И ОБЕД";
+  } else if (hour < 20) {
+    badge.textContent = "ФАЗА: ВЕЧЕРНИЙ НАПЛЫВ ОППОЗИЦИИ";
+  } else {
+    badge.textContent = "ФАЗА: НОЧНОЙ ПОДСЧЕТ И СДАЧА ПРОТОКОЛОВ";
+  }
 }
 
 /**
- * ОТРИСОВКА ИНТЕРФЕЙСА (UI RENDER)
+ * КОНТРУДАРЫ ОППОЗИЦИИ (МЕДИА-БОМБЫ, ИСКИ)
+ */
+function triggerOppositionCounterstrike() {
+  const events = [
+    { text: "Канал оппозиции выпустил расследование о каруселях! Палево +18%", sus: 18 },
+    { text: "Юристы штаба подали 30 жалоб в ЦИК на несовпадение явки! Палево +12%", sus: 12 },
+    { text: "На УИК №1404 прибыл десант независимых журналистов! Наблюдатели +2", sus: 8, pId: 1404 }
+  ];
+  const ev = events[Math.floor(Math.random() * events.length)];
+  state.suspicion = Math.min(100, state.suspicion + ev.sus);
+  if (ev.pId) {
+    const p = state.precincts.find(x => x.id === ev.pId);
+    if (p) p.observersCount += 2;
+  }
+  addLog(ev.text, "alarm");
+  sfx.alarm();
+}
+
+/**
+ * ЗВОНОК НАЧАЛЬСТВА (ДИСПЕТЧЕРСКИЕ ЗАДАЧИ)
+ */
+function triggerBossCall() {
+  const targetPrecinct = state.precincts[Math.floor(Math.random() * state.precincts.length)];
+  state.activeCall = {
+    precinctId: targetPrecinct.id,
+    targetTurnoutPct: 75,
+    rewardCash: 4000
+  };
+  state.callTimerSec = 90;
+
+  document.getElementById("callSpeaker").textContent = "Куратор Внутренней Политики";
+  document.getElementById("callMessage").textContent = 
+    `«На УИК №${targetPrecinct.id} недопустимо низкая активность! Требую поднять явку до 75% за отведенное время, иначе готовь объяснительную прокурору.»`;
+  document.getElementById("callModal").classList.remove("hidden");
+  sfx.alarm();
+}
+
+function failCallTask() {
+  state.activeCall = null;
+  state.suspicion = Math.min(100, state.suspicion + 25);
+  addLog("Задание куратора провалено! Выговор и +25% к палеву.", "alarm");
+}
+
+/**
+ * ПОДВЕДЕНИЕ ИТОГОВ ВЫБОРОВ В 20:00
+ */
+function finishElectionDay() {
+  state.isGameOver = true;
+  let totalVoters = 0;
+  let totalReported = 0;
+  let totalGov = 0;
+  let totalReal = 0;
+
+  state.precincts.forEach(p => {
+    totalVoters += p.votersTotal;
+    const reportedTurnout = p.realVoted + p.fakedVoted;
+    totalReported += reportedTurnout;
+    totalGov += p.govCandidateVotes + p.fakedVoted;
+    totalReal += p.realVoted;
+  });
+
+  const officialPct = (totalGov / totalReported) * 100;
+  const targetPct = state.country.targetVotesPct;
+
+  if (state.role === "curator") {
+    if (officialPct >= targetPct) {
+      triggerEndgame(true, `План выполнен: партия набрала ${officialPct.toFixed(1)}% при явке ${((totalReported/totalVoters)*100).toFixed(1)}%. Протоколы подписаны без нареканий.`);
+    } else {
+      triggerEndgame(false, `Провал: партия власти набрала лишь ${officialPct.toFixed(1)}% (требовалось ${targetPct}%). Куратор отстранен от должности.`);
+    }
+  } else {
+    // Режим наблюдателя
+    if (state.suspicion >= 60 || officialPct < targetPct) {
+      triggerEndgame(true, `Честность отстояна! Благодаря актам и фиксации нарушений сфальсифицировать итоги не удалось.`);
+    } else {
+      triggerEndgame(false, `Махинаторы победили: итоговый протокол сфальсифицирован на уровне ${officialPct.toFixed(1)}%.`);
+    }
+  }
+}
+
+function triggerEndgame(isVictory, narrative) {
+  const modal = document.getElementById("endgameModal");
+  const card = document.getElementById("endgameCard");
+  const stamp = document.getElementById("endgameStamp");
+
+  sfx.stamp();
+  modal.classList.remove("hidden");
+
+  let totalReported = 0, totalGov = 0, totalReal = 0;
+  state.precincts.forEach(p => {
+    totalReported += p.realVoted + p.fakedVoted;
+    totalGov += p.govCandidateVotes + p.fakedVoted;
+    totalReal += p.realVoted;
+  });
+
+  document.getElementById("endStatOfficial").textContent = `${((totalGov / totalReported) * 100).toFixed(1)}%`;
+  document.getElementById("endStatReal").textContent = `${((totalReal / totalReported) * 100).toFixed(1)}%`;
+  document.getElementById("endStatFake").textContent = `${state.fakedVotesTotal.toLocaleString()} бюлл.`;
+  document.getElementById("endStatCash").textContent = `$${Math.floor(state.corruptionFunds).toLocaleString()}`;
+  document.getElementById("newsPaperBody").textContent = narrative;
+
+  if (isVictory) {
+    card.className = "endgame-card";
+    stamp.textContent = "ПОБЕДА УТВЕРЖДЕНА";
+    document.getElementById("endgameTitle").textContent = "ЦЕЛЬ КАМПАНИИ ДОСТИГНУТА";
+  } else {
+    card.className = "endgame-card defeat";
+    stamp.textContent = "ПОРАЖЕНИЕ / СКАНДАЛ";
+    document.getElementById("endgameTitle").textContent = "ПРОВАЛ И РАЗОБЛАЧЕНИЕ";
+  }
+}
+
+/**
+ * ИСТОЧНИКИ ЗАРАБОТКА ТЕНЕВОГО КЭША
+ */
+function setupCashEarningButtons() {
+  document.getElementById("btnEmbezzleBudget").addEventListener("click", () => {
+    if (state.officialBudget >= 1000) {
+      state.officialBudget -= 1000;
+      state.corruptionFunds += 800;
+      state.suspicion = Math.min(100, state.suspicion + 3);
+      sfx.cash();
+      addLog("Распил госбюджета: -$1000 фонда ➔ +$800 кэша (+3% палева)", "success");
+    }
+  });
+
+  document.getElementById("btnOligarchDonation").addEventListener("click", () => {
+    state.corruptionFunds += 2500;
+    state.suspicion = Math.min(100, state.suspicion + 7);
+    sfx.cash();
+    addLog("Транш от олигарха: получено +$2,500 в теневой фонд (+7% палева)", "success");
+  });
+
+  document.getElementById("btnMunicipalTender").addEventListener("click", () => {
+    state.corruptionFunds += 5000;
+    state.suspicion = Math.min(100, state.suspicion + 14);
+    sfx.cash();
+    addLog("Тендер на замену бордюров закрыт: получено +$5,000 (+14% палева)", "success");
+  });
+
+  document.getElementById("btnShakedownBusiness").addEventListener("click", () => {
+    state.corruptionFunds += 1200;
+    state.suspicion = Math.min(100, state.suspicion + 8);
+    sfx.cash();
+    addLog("Проверки торговых точек: собрано +$1,200 наличными (+8% палева)", "success");
+  });
+}
+
+/**
+ * ТЕЛЕФОННАЯ КНИГА СВЯЗЕЙ
+ */
+function setupRolodex() {
+  document.querySelectorAll(".btn-call").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const contact = btn.dataset.contact;
+      sfx.click();
+
+      if (contact === "admin" && state.corruptionFunds >= 3000) {
+        state.corruptionFunds -= 3000;
+        state.suspicion = Math.max(0, state.suspicion - 25);
+        addLog("Звонок в Администрацию: закрыты прокурорские проверки (-25% палева)");
+      } else if (contact === "police" && state.corruptionFunds >= 1200) {
+        state.corruptionFunds -= 1200;
+        const cur = getSelectedPrecinct();
+        cur.observersCount = Math.max(0, cur.observersCount - 2);
+        addLog(`Наряд РОВД удалил 2 наблюдателей с УИК №${cur.id}`);
+      } else if (contact === "hospital" && state.corruptionFunds >= 800) {
+        state.corruptionFunds -= 800;
+        const cur = getSelectedPrecinct();
+        cur.fakedVoted += 250;
+        state.fakedVotesTotal += 250;
+        addLog(`Переносная урна из больницы привезла +250 голосов на УИК №${cur.id}`);
+      } else if (contact === "bus" && state.corruptionFunds >= 1500) {
+        state.corruptionFunds -= 1500;
+        state.precincts.forEach(p => {
+          if (p.loyalty > 0.7) {
+            p.fakedVoted += 60;
+            state.fakedVotesTotal += 60;
+          }
+        });
+        state.suspicion = Math.min(100, state.suspicion + 9);
+        addLog("Колонна карусельщиков объехала лояльные участки (+60 бюлл. на каждый)");
+      }
+    });
+  });
+}
+
+/**
+ * ИНСПЕКТОР И ДЕЙСТВИЯ НА ВЫБРАННОМ УИК
+ */
+function getSelectedPrecinct() {
+  return state.precincts.find(p => p.id === state.selectedPrecinctId) || state.precincts[0];
+}
+
+function setupPrecinctInspectorActions() {
+  const container = document.getElementById("inspActionButtons");
+  container.querySelectorAll(".btn-insp").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const act = btn.dataset.action;
+      const p = getSelectedPrecinct();
+      sfx.click();
+
+      if (act === "bribeChair" && state.corruptionFunds >= 400) {
+        state.corruptionFunds -= 400;
+        p.loyalty = Math.min(1.0, p.loyalty + 0.15);
+        addLog(`Председатель УИК №${p.id} взял конверт. Лояльность повышена до ${(p.loyalty*100).toFixed(0)}%`);
+      } else if (act === "deployObserver" && state.corruptionFunds >= 300) {
+        state.corruptionFunds -= 300;
+        p.observersCount += 1;
+        addLog(`На УИК №${p.id} направлен свой наблюдатель`);
+      } else if (act === "cutPower" && state.corruptionFunds >= 500) {
+        state.corruptionFunds -= 500;
+        p.powerCut = true;
+        p.fakedVoted += 200;
+        state.fakedVotesTotal += 200;
+        state.suspicion = Math.min(100, state.suspicion + 8);
+        addLog(`На УИК №${p.id} выбило пробки: за 15 мин темноты вброшено +200 бюллетеней`);
+      } else if (act === "sanitize" && state.corruptionFunds >= 350) {
+        state.corruptionFunds -= 350;
+        p.sanitized = true;
+        state.suspicion = Math.max(0, state.suspicion - 10);
+        addLog(`УИК №${p.id} закрыт на санобработку. Наблюдатели выставлены на улицу`);
+      } else if (act === "instantDrop") {
+        const added = 150;
+        p.fakedVoted += added;
+        state.fakedVotesTotal += added;
+        const addedSus = (added * 0.1) * (p.observersCount + 1);
+        state.suspicion = Math.min(100, state.suspicion + addedSus);
+        addLog(`Точечный вброс пачки на УИК №${p.id}: +${added} голосов`);
+      }
+    });
+  });
+}
+
+/**
+ * МИНИ-ИГРА: «ВБРОС В ЩЕЛЬ ПОКА НАБЛЮДАТЕЛЬ ОТВЕРНУЛСЯ»
+ */
+let minigameInterval = null;
+let isHoldingMinigame = false;
+let observerWatchLevel = 0; // 0 (безопасно) до 100 (смотрит прямо)
+let miniSuccessCount = 0;
+
+function setupMinigame() {
+  const btnOpen = document.getElementById("btnStartMinigame");
+  const modal = document.getElementById("minigameModal");
+  const btnClose = document.getElementById("btnCloseMinigame");
+  const holdBtn = document.getElementById("btnHoldDrop");
+
+  btnOpen.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+    miniSuccessCount = 0;
+    observerWatchLevel = 10;
+    isHoldingMinigame = false;
+    document.getElementById("miniSuccessCount").textContent = "0";
+    document.getElementById("miniRiskPct").textContent = "0%";
+
+    clearInterval(minigameInterval);
+    minigameInterval = setInterval(tickMinigameLogic, 100);
+  });
+
+  btnClose.addEventListener("click", () => {
+    modal.classList.add("hidden");
+    clearInterval(minigameInterval);
+  });
+
+  const startHold = () => { isHoldingMinigame = true; };
+  const endHold = () => { isHoldingMinigame = false; };
+
+  holdBtn.addEventListener("mousedown", startHold);
+  holdBtn.addEventListener("mouseup", endHold);
+  holdBtn.addEventListener("mouseleave", endHold);
+  holdBtn.addEventListener("touchstart", startHold);
+  holdBtn.addEventListener("touchend", endHold);
+}
+
+function tickMinigameLogic() {
+  // Наблюдатель периодически переводит взгляд
+  observerWatchLevel += (Math.random() * 16) - 7;
+  observerWatchLevel = Math.max(0, Math.min(100, observerWatchLevel));
+
+  const fill = document.getElementById("visionFill");
+  const text = document.getElementById("visionStateText");
+  fill.style.width = `${observerWatchLevel}%`;
+
+  if (observerWatchLevel > 65) {
+    fill.style.backgroundColor = "#ef4444";
+    text.textContent = "СМОТРИТ ПРЯМО НА УРНУ! (ОПАСНОСТЬ)";
+    text.className = "vision-state danger";
+  } else {
+    fill.style.backgroundColor = "#10b981";
+    text.textContent = "ОТВЛЕКСЯ В ТЕЛЕФОН / ПЬЕТ ЧАЙ (БЕЗОПАСНО)";
+    text.className = "vision-state safe";
+  }
+
+  // Если игрок зажал кнопку
+  if (isHoldingMinigame) {
+    sfx.click();
+    miniSuccessCount++;
+    document.getElementById("miniSuccessCount").textContent = miniSuccessCount;
+    document.getElementById("ballotStackVisual").style.transform = `translateY(${miniSuccessCount * 2}px)`;
+
+    // Если вбросил прямо под взглядом наблюдателя
+    if (observerWatchLevel > 65) {
+      state.suspicion = Math.min(100, state.suspicion + 30);
+      sfx.alarm();
+      document.getElementById("minigameModal").classList.add("hidden");
+      clearInterval(minigameInterval);
+      addLog("ВАС ПОЙМАЛИ ЗА РУКУ НА ВБРОСЕ! Скандал и +30% к палеву!", "alarm");
+      return;
+    }
+
+    if (miniSuccessCount >= 20) {
+      // Успех операции
+      const p = getSelectedPrecinct();
+      p.fakedVoted += 350;
+      state.fakedVotesTotal += 350;
+      sfx.cash();
+      document.getElementById("minigameModal").classList.add("hidden");
+      clearInterval(minigameInterval);
+      addLog(`Спецоперация удалась: +350 бюллетеней без шума вброшено на УИК №${p.id}!`, "success");
+    }
+  }
+}
+
+/**
+ * ДЕРЕВО ТЕХНОЛОГИЙ (ПРОКАЧКА)
+ */
+function renderTechTree(tabName = "admin") {
+  const container = document.getElementById("techBranchContainer");
+  const list = GAME_CONFIG.techTree[tabName] || [];
+  container.innerHTML = list.map(tech => {
+    const isBought = state.unlockedTechs.includes(tech.id);
+    return `
+      <div class="tech-item ${!isBought ? '' : 'bought'}">
+        <div class="tech-info">
+          <span class="tech-title">${tech.name}</span>
+          <span class="tech-desc">${tech.desc}</span>
+        </div>
+        <button class="btn-buy-tech ${isBought ? 'purchased' : ''}" 
+                ${isBought ? 'disabled' : ''} 
+                data-id="${tech.id}" data-cost="${tech.cost}">
+          ${isBought ? 'Изучено ✓' : `$${tech.cost}`}
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  container.querySelectorAll(".btn-buy-tech:not([disabled])").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const cost = parseInt(btn.dataset.cost);
+      if (state.corruptionFunds >= cost) {
+        state.corruptionFunds -= cost;
+        state.unlockedTechs.push(id);
+        sfx.cash();
+        addLog(`Изучена технология: ${id}`, "success");
+        renderTechTree(tabName);
+      }
+    });
+  });
+}
+
+function setupTechTreeTabs() {
+  document.querySelectorAll(".tree-tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tree-tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTechTree(btn.dataset.tab);
+    });
+  });
+}
+
+/**
+ * ТУМАН ВОЙНЫ И РАЗВЕДКА
+ */
+function setupIntelButtons() {
+  document.getElementById("btnBuyPoll").addEventListener("click", () => {
+    if (state.corruptionFunds >= 600) {
+      state.corruptionFunds -= 600;
+      state.intelQuality = Math.min(1.0, state.intelQuality + 0.35);
+      sfx.cash();
+      addLog("Куплен закрытый социологический замер: точность выросла");
+    }
+  });
+
+  document.getElementById("btnWiretapOpposition").addEventListener("click", () => {
+    if (state.corruptionFunds >= 1400) {
+      state.corruptionFunds -= 1400;
+      state.smartVoteIntensity = Math.max(0.1, state.smartVoteIntensity - 0.12);
+      sfx.cash();
+      addLog("Штаб оппозиции поставлен на прослушку: скоординированность снижена");
+    }
+  });
+}
+
+/**
+ * ОТРИСОВКА ДИАГРАММЫ ШПИЛЬКИНА (CANVAS)
+ */
+function renderShpilkinChart() {
+  const canvas = document.getElementById("shpilkinChartCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Оси координат и сетка
+  ctx.strokeStyle = "#1b253b";
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= w; x += 60) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+  }
+  for (let y = 0; y <= h; y += 40) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  let totalAnomalyDistance = 0;
+
+  // Нанесение точек участков
+  state.precincts.forEach(p => {
+    const totalReported = p.realVoted + p.fakedVoted;
+    const turnoutPct = (totalReported / p.votersTotal) * 100;
+    const govPct = totalReported > 0 ? ((p.govCandidateVotes + p.fakedVoted) / totalReported) * 100 : 0;
+
+    const cx = (turnoutPct / 100) * w;
+    const cy = h - ((govPct / 100) * h);
+
+    // Расчет коэффициента аномальности ("хвост Шпилькина")
+    const isAnomaly = turnoutPct > 75 && govPct > 75;
+    if (isAnomaly) totalAnomalyDistance += (turnoutPct - 70);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, isAnomaly ? 4.5 : 3, 0, Math.PI * 2);
+    ctx.fillStyle = isAnomaly ? "#ef4444" : "#38bdf8";
+    ctx.fill();
+  });
+
+  const badge = document.getElementById("shpilkinStatusBadge");
+  const score = document.getElementById("shpilkinTailScore");
+  const anomalyScore = (totalAnomalyDistance / 10).toFixed(1);
+  score.textContent = `Индекс аномальности: ${anomalyScore}`;
+
+  if (totalAnomalyDistance > 80) {
+    badge.textContent = "Аномалия: «Хвост Шпилькина»";
+    badge.className = "status-pill red";
+  } else {
+    badge.textContent = "Норма: Колокол Гаусса";
+    badge.className = "status-pill green";
+  }
+}
+
+/**
+ * ОТРИСОВКА КАРТЫ УЧАСТКОВ
+ */
+function renderPrecinctsGrid() {
+  const container = document.getElementById("precinctsGrid");
+  container.innerHTML = state.precincts.map(p => {
+    const totalReported = p.realVoted + p.fakedVoted;
+    const turnoutPct = ((totalReported / p.votersTotal) * 100).toFixed(0);
+    const isSelected = p.id === state.selectedPrecinctId;
+    const isAlert = p.observersCount >= 3 || p.fakedVoted > 400;
+
+    return `
+      <div class="precinct-node ${isSelected ? 'selected' : ''} ${isAlert ? 'alert' : ''}" data-id="${p.id}">
+        <div class="p-header">
+          <span>№${p.id}</span>
+          <span>${turnoutPct}%</span>
+        </div>
+        <div class="p-type">${p.title}</div>
+        <div class="p-bar-track">
+          <div class="p-bar-fill" style="width: ${turnoutPct}%"></div>
+        </div>
+        <div class="p-badges-row">
+          <span class="p-pill">👁️ ${p.observersCount}</span>
+          <span class="p-pill">🗳️ ${p.fakedVoted}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  container.querySelectorAll(".precinct-node").forEach(node => {
+    node.addEventListener("click", () => {
+      state.selectedPrecinctId = parseInt(node.dataset.id);
+      sfx.click();
+      renderPrecinctInspector();
+      renderPrecinctsGrid();
+    });
+  });
+}
+
+function renderPrecinctInspector() {
+  const p = getSelectedPrecinct();
+  document.getElementById("inspTitle").textContent = p.title;
+  document.getElementById("inspTypeBadge").textContent = p.typeName.toUpperCase();
+  document.getElementById("inspLoyalty").textContent = `${(p.loyalty * 100).toFixed(0)}%`;
+  document.getElementById("inspObservers").textContent = `${p.observersCount} чел.`;
+  document.getElementById("inspVotersTotal").textContent = p.votersTotal.toLocaleString();
+  document.getElementById("inspRealVoted").textContent = p.realVoted.toLocaleString();
+  document.getElementById("inspFakeVoted").textContent = `+${p.fakedVoted.toLocaleString()}`;
+  document.getElementById("inspEquipment").textContent = p.equip;
+}
+
+/**
+ * ЛОГ ИНЦИДЕНТОВ
+ */
+function addLog(msg, type = "normal") {
+  const log = document.getElementById("incidentLog");
+  const row = document.createElement("div");
+  const timeStr = formatGameTime();
+  row.className = `log-row ${type}`;
+  row.textContent = `[${timeStr}] ${msg}`;
+  log.prepend(row);
+  if (log.children.length > 30) log.lastChild.remove();
+}
+
+function formatGameTime() {
+  const hrs = Math.floor(state.gameMinutes / 60) % 24;
+  const mins = Math.floor(state.gameMinutes % 60);
+  return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+}
+
+/**
+ * ОБНОВЛЕНИЕ ЭЛЕМЕНТОВ ИНТЕРФЕЙСА (UI RENDER)
  */
 function renderUI() {
-  if (!gameState.currentCountry) return;
+  // Таймер
+  document.getElementById("clockDisplay").textContent = formatGameTime();
 
-  // Валюты и счетчики
-  document.getElementById("fakedVotesDisplay").textContent = Math.floor(gameState.fakedVotes).toLocaleString("ru-RU");
-  document.getElementById("corruptionFundsDisplay").textContent = `$${Math.floor(gameState.corruptionFunds).toLocaleString("ru-RU")}`;
-  document.getElementById("wonElectionsDisplay").textContent = gameState.wonElections;
+  // Финансы
+  document.getElementById("metricVotesVal").textContent = state.fakedVotesTotal.toLocaleString();
+  document.getElementById("metricCashVal").textContent = `$${Math.floor(state.corruptionFunds).toLocaleString()}`;
+  document.getElementById("metricBudgetVal").textContent = `$${Math.floor(state.officialBudget).toLocaleString()}`;
 
-  // Метрики
-  const clickPower = Math.max(1, Math.round(1 * getFinalVoteMultiplier()));
-  document.getElementById("clickPowerDisplay").textContent = clickPower;
-  document.getElementById("passiveIncomeDisplay").textContent = `+${getPassiveVotesPerSec().toFixed(1)} / сек`;
-  document.getElementById("stealthMultiplierDisplay").textContent = `x${getFinalStealthMultiplier().toFixed(2)}`;
-  document.getElementById("prestigeMultiplierDisplay").textContent = `+${Math.round((getPrestigeMultiplier() - 1) * 100)}%`;
+  // Шкала палева
+  const sBar = document.getElementById("suspicionBar");
+  sBar.style.width = `${state.suspicion}%`;
+  document.getElementById("suspicionVal").textContent = `${Math.round(state.suspicion)}%`;
+  sBar.style.backgroundColor = state.suspicion < 45 ? "var(--success)" : (state.suspicion < 75 ? "var(--warning)" : "var(--danger)");
 
-  // Шкала Палева
-  const bar = document.getElementById("suspicionBar");
-  const percentText = document.getElementById("suspicionValue");
-  bar.style.width = `${gameState.suspicion}%`;
-  percentText.textContent = `${Math.round(gameState.suspicion)}%`;
-
-  if (gameState.suspicion < 45) {
-    bar.style.backgroundColor = "var(--success-color)";
-  } else if (gameState.suspicion < 80) {
-    bar.style.backgroundColor = "var(--warning-color)";
-  } else {
-    bar.style.backgroundColor = "var(--danger-color)";
-  }
-
-  // Скандал-баннер
-  const scandalBanner = document.getElementById("scandalBanner");
-  const dropBtn = document.getElementById("btnManualDrop");
-  if (gameState.isScandalActive) {
-    scandalBanner.classList.remove("hidden");
-    document.getElementById("scandalTimer").textContent = `${Math.ceil(gameState.scandalTimeRemaining)} сек`;
-    dropBtn.disabled = true;
-  } else {
-    scandalBanner.classList.add("hidden");
-    dropBtn.disabled = false;
-  }
-
-  // Кнопка отмывания
-  const launderBtn = document.getElementById("btnLaunderVotes");
-  const launderReward = Math.round(100 * getFinalKickbackMultiplier());
-  document.getElementById("launderRewardDisplay").textContent = `+$${launderReward}`;
-  launderBtn.disabled = gameState.fakedVotes < 100 || gameState.isScandalActive;
-
-  // Обновление состояния кнопок в магазине
-  updateShopButtonsState();
-}
-
-function updateShopButtonsState() {
-  document.querySelectorAll(".shop-list .btn-buy:not(.maxed)").forEach(btn => {
-    const id = btn.dataset.upgradeId;
-    if (!id) return;
-
-    let item = CONFIG.upgrades.machinations.find(x => x.id === id);
-    let currency = "fakedVotes";
-    if (!item) {
-      item = CONFIG.upgrades.conspiracy.find(x => x.id === id);
-      currency = "corruptionFunds";
-    }
-
-    if (item) {
-      const affordable = gameState[currency] >= item.cost;
-      btn.className = `btn-buy ${affordable ? "affordable" : "unaffordable"}`;
-      btn.disabled = !affordable;
-    }
+  // Статус округа
+  let sumVoters = 0, sumReal = 0, sumReported = 0, sumSmart = 0;
+  state.precincts.forEach(p => {
+    sumVoters += p.votersTotal;
+    sumReal += p.realVoted;
+    sumReported += p.realVoted + p.fakedVoted;
+    sumSmart += p.smartVoteCandidateVotes;
   });
+
+  document.getElementById("uiProcessedPrecincts").textContent = `${state.precincts.filter(p => p.realVoted > 100).length} / 16`;
+  document.getElementById("uiOfficialTurnout").textContent = `${((sumReported / sumVoters) * 100).toFixed(1)}%`;
+  document.getElementById("uiRealTurnout").textContent = `${((sumReal / sumVoters) * 100).toFixed(1)}%`;
+  document.getElementById("uiSmartVoteShare").textContent = `${((sumSmart / sumReal) * 100 || 0).toFixed(1)}%`;
+
+  // Разведка
+  if (state.intelQuality < 0.4) {
+    document.getElementById("intelExitPoll").textContent = "ДАННЫЕ ЗАСЕКРЕЧЕНЫ";
+    document.getElementById("intelMargin").textContent = "±18.5%";
+  } else {
+    const est = ((sumReal / sumVoters) * 100).toFixed(1);
+    document.getElementById("intelExitPoll").textContent = `Оценка явки: ${est}%`;
+    document.getElementById("intelMargin").textContent = `±${((1 - state.intelQuality) * 15).toFixed(1)}%`;
+  }
+
+  // Отрисовка графиков и инспектора
+  renderShpilkinChart();
+  renderPrecinctInspector();
 }
 
 /**
- * АВТОСОХРАНЕНИЕ И СБРОС (localStorage)
- */
-const STORAGE_KEY = "election_sim_save_v2";
-
-function saveGame() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
-  } catch (e) {
-    console.warn("Ошибка сохранения:", e);
-  }
-}
-
-function loadGame() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      gameState = { ...INITIAL_GAME_STATE, ...parsed };
-      return true;
-    }
-  } catch (e) {
-    console.error("Ошибка загрузки:", e);
-  }
-  return false;
-}
-
-function hardResetSave() {
-  if (confirm("Вы точно хотите сбросить весь прогресс, победы и улучшения?")) {
-    localStorage.removeItem(STORAGE_KEY);
-    gameState = { ...INITIAL_GAME_STATE };
-    location.reload();
-  }
-}
-
-/**
- * ИНИЦИАЛИЗАЦИЯ И ОБРАБОТЧИКИ
+ * ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ СОБЫТИЙ
  */
 document.addEventListener("DOMContentLoaded", () => {
-  const hasSave = loadGame();
+  generatePrecincts();
+  setupCashEarningButtons();
+  setupRolodex();
+  setupPrecinctInspectorActions();
+  setupMinigame();
+  setupTechTreeTabs();
+  setupIntelButtons();
+  renderTechTree("admin");
+  renderPrecinctsGrid();
 
-  renderCountrySelection();
-  setupEventListeners();
+  // Выбор страны в стартовой модалке
+  const pillsBox = document.getElementById("countryPills");
+  pillsBox.innerHTML = GAME_CONFIG.countries.map(c => `
+    <button class="country-pill-btn ${c.id === state.country.id ? 'selected' : ''}" data-id="${c.id}">
+      ${c.flag} ${c.name}
+    </button>
+  `).join("");
 
-  if (hasSave && gameState.currentCountry && gameState.currentParty) {
-    startCampaign(false); // Запуск без перетирания сохраненных данных
-  }
-
-  requestAnimationFrame(gameLoop);
-});
-
-function setupEventListeners() {
-  // Кнопка кликера
-  document.getElementById("btnManualDrop").addEventListener("click", handleManualDrop);
-
-  // Кнопка отмыва
-  document.getElementById("btnLaunderVotes").addEventListener("click", handleLaunder);
-
-  // Табы магазина прокачки
-  const tabMach = document.getElementById("tabMachinations");
-  const tabConsp = document.getElementById("tabConspiracy");
-  const listMach = document.getElementById("machinationsList");
-  const listConsp = document.getElementById("conspiracyList");
-
-  tabMach.addEventListener("click", () => {
-    tabMach.classList.add("active");
-    tabConsp.classList.remove("active");
-    listMach.classList.remove("hidden");
-    listConsp.classList.add("hidden");
-    renderMachinationsTab();
-  });
-
-  tabConsp.addEventListener("click", () => {
-    tabConsp.classList.add("active");
-    tabMach.classList.remove("active");
-    listConsp.classList.remove("hidden");
-    listMach.classList.add("hidden");
-    renderConspiracyTab();
-  });
-
-  // Кнопка полного сброса
-  document.getElementById("btnHardReset").addEventListener("click", hardResetSave);
-
-  // Модалка и кампании
-  document.getElementById("btnBackToCountries").addEventListener("click", () => {
-    document.getElementById("stepParty").classList.add("hidden");
-    document.querySelectorAll(".country-card").forEach(c => c.classList.remove("selected"));
-    document.getElementById("btnStartGame").disabled = true;
-  });
-
-  document.getElementById("btnStartGame").addEventListener("click", () => {
-    startCampaign(true);
-  });
-
-  document.getElementById("btnSwitchCampaign").addEventListener("click", () => {
-    document.getElementById("campaignModal").classList.remove("hidden");
-  });
-}
-
-function renderCountrySelection() {
-  const container = document.getElementById("countryGrid");
-  container.innerHTML = "";
-
-  Object.keys(CONFIG.countries).forEach(key => {
-    const c = CONFIG.countries[key];
-    const card = document.createElement("div");
-    card.className = "country-card";
-    card.dataset.country = key;
-
-    card.innerHTML = `
-      <div class="country-card-header">
-        <span class="flag-icon">${c.flag}</span>
-        <h4>${c.name}</h4>
-      </div>
-      <span class="system-badge-text" style="color: #60a5fa; font-size: 0.75rem; font-weight: 700; display: block; margin: 4px 0;">${c.systemName}</span>
-      <p style="font-size: 0.78rem; color: #94a3b8; line-height: 1.35;">${c.description}</p>
-    `;
-
-    card.addEventListener("click", () => selectCountry(key));
-    container.appendChild(card);
-  });
-}
-
-function selectCountry(countryKey) {
-  document.querySelectorAll(".country-card").forEach(card => {
-    card.classList.toggle("selected", card.dataset.country === countryKey);
-  });
-
-  renderPartySelection(countryKey);
-  document.getElementById("stepParty").classList.remove("hidden");
-  document.getElementById("btnStartGame").disabled = true;
-}
-
-function renderPartySelection(countryKey) {
-  const container = document.getElementById("partyGrid");
-  container.innerHTML = "";
-
-  const parties = CONFIG.countries[countryKey].parties;
-  parties.forEach(p => {
-    const card = document.createElement("div");
-    card.className = "party-card";
-    card.dataset.party = p.id;
-    card.style.borderTop = `4px solid ${p.color}`;
-
-    card.innerHTML = `
-      <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
-        <span style="font-size: 1.5rem;">${p.icon}</span>
-        <h4 style="font-size: 0.95rem;">${p.name}</h4>
-      </div>
-      <p style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 10px;">${p.desc}</p>
-      <div style="font-size: 0.72rem; font-family: monospace; display: flex; flex-direction: column; gap: 4px;">
-        <div>Голоса: <strong>x${p.buffs.voteMultiplier.toFixed(2)}</strong></div>
-        <div>Скрытность: <strong>x${p.buffs.stealthMultiplier.toFixed(2)}</strong></div>
-        <div>Откаты: <strong>x${p.buffs.kickbackMultiplier.toFixed(2)}</strong></div>
-      </div>
-    `;
-
-    card.addEventListener("click", () => {
-      document.querySelectorAll(".party-card").forEach(c => c.classList.remove("selected"));
-      card.classList.add("selected");
-      gameState.pendingCountry = countryKey;
-      gameState.pendingParty = p.id;
-      document.getElementById("btnStartGame").disabled = false;
+  pillsBox.querySelectorAll(".country-pill-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      pillsBox.querySelectorAll(".country-pill-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      state.country = GAME_CONFIG.countries.find(x => x.id === btn.dataset.id);
     });
-
-    container.appendChild(card);
   });
-}
 
-function startCampaign(isNewSelection = true) {
-  if (isNewSelection && gameState.pendingCountry && gameState.pendingParty) {
-    gameState.currentCountry = gameState.pendingCountry;
-    gameState.currentParty = gameState.pendingParty;
-  }
+  // Выбор роли (Куратор / Наблюдатель)
+  document.querySelectorAll(".role-card").forEach(rc => {
+    rc.addEventListener("click", () => {
+      document.querySelectorAll(".role-card").forEach(c => c.classList.remove("selected"));
+      rc.classList.add("selected");
+      state.role = rc.dataset.role;
+    });
+  });
 
-  const country = CONFIG.countries[gameState.currentCountry];
-  const party = country.parties.find(p => p.id === gameState.currentParty);
+  // Кнопка запуска игры
+  document.getElementById("btnLaunchGame").addEventListener("click", () => {
+    document.getElementById("startModal").classList.add("hidden");
+    document.getElementById("countryFlag").textContent = state.country.flag;
+    document.getElementById("countryName").textContent = state.country.name;
+    document.getElementById("partyName").textContent = state.country.party;
+    document.getElementById("roleBadge").textContent = state.role === "curator" ? "РЕЖИМ: КУРАТОР" : "РЕЖИМ: НАБЛЮДАТЕЛЬ";
+    
+    if (state.role === "observer") {
+      document.getElementById("primaryMetricTitle").textContent = "Жалобы в ЦИК";
+      document.getElementById("suspicionLabel").textContent = "ДАВЛЕНИЕ СИЛОВИКОВ";
+    }
 
-  // Темизация CSS
-  document.documentElement.style.setProperty("--theme-color", party.color);
-  document.documentElement.style.setProperty("--theme-glow", party.color + "44");
+    addLog(`Кампания открыта в юрисдикции: ${state.country.name}. Время 08:00, участки открыты.`);
+  });
 
-  // Заполнение шапки
-  document.getElementById("countryFlag").textContent = country.flag;
-  document.getElementById("countryName").textContent = country.name;
-  document.getElementById("systemName").textContent = country.systemName;
-  document.getElementById("partyIcon").textContent = party.icon;
-  document.getElementById("partyName").textContent = party.name;
-  document.getElementById("partyBuffs").textContent = 
-    `x${party.buffs.voteMultiplier} бюлл. | x${party.buffs.stealthMultiplier} стелс`;
+  // Управление скоростью времени
+  document.querySelectorAll(".btn-speed[data-speed]").forEach(b => {
+    b.addEventListener("click", () => {
+      document.querySelectorAll(".btn-speed[data-speed]").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      state.timeSpeed = parseInt(b.dataset.speed);
+      state.isPaused = false;
+    });
+  });
 
-  document.getElementById("systemBriefing").innerHTML = `
-    <strong>Цель кампании (${country.systemName}):</strong> ${country.victoryCondition}
+  document.getElementById("btnPauseToggle").addEventListener("click", () => {
+    state.isPaused = !state.isPaused;
+    document.getElementById("btnPauseToggle").textContent = state.isPaused ? "▶" : "⏸";
+  });
+
+  // Звук
+  document.getElementById("btnSoundToggle").addEventListener("click", () => {
+    sfx.enabled = !sfx.enabled;
+    document.getElementById("btnSoundToggle").textContent = sfx.enabled ? "🔊" : "🔇";
+  });
+
+  // Смена роли / Перезапуск
+  document.getElementById("btnSwitchSide").addEventListener("click", () => {
+    state.role = state.role === "curator" ? "observer" : "curator";
+    document.getElementById("roleBadge").textContent = state.role === "curator" ? "РЕЖИМ: КУРАТОР" : "РЕЖИМ: НАБЛЮДАТЕЛЬ";
+    sfx.click();
+    addLog(`Роль изменена на: ${state.role === "curator" ? "Куратор" : "Наблюдатель"}`);
+  });
+
+  document.getElementById("btnNewCampaign").addEventListener("click", () => location.reload());
+  document.getElementById("btnRestartCampaign").addEventListener("click", () => location.reload());
+
+  // Бегущая строка
+  document.getElementById("tickerTrack").innerHTML = `
+    <span>В стране открылись свыше 90 тысяч избирательных участков</span>
+    <span>ЦИК сообщает о штатной работе систем видеонаблюдения и КОИБ</span>
+    <span>Независимые штабы развернули ситуационные центры мониторинга</span>
   `;
 
-  // Переключение экранов
-  document.getElementById("campaignModal").classList.add("hidden");
-  document.getElementById("gameHeader").classList.remove("hidden");
-  document.getElementById("gameWorkspace").classList.remove("hidden");
+  // Ответ на звонок начальства
+  document.getElementById("btnAcceptCallTask").addEventListener("click", () => {
+    document.getElementById("callModal").classList.add("hidden");
+    state.corruptionFunds += 4000;
+    addLog("Распоряжение куратора принято в работу. Выделен аванс +$4,000", "success");
+  });
 
-  // Инициализация магазина
-  renderUpgradesShop();
-  saveGame();
-}
+  document.getElementById("btnDeclineCallTask").addEventListener("click", () => {
+    document.getElementById("callModal").classList.add("hidden");
+    failCallTask();
+  });
+
+  // Запуск игрового цикла
+  requestAnimationFrame(simulationLoop);
+});

@@ -3,183 +3,417 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Симулятор Выборов — Центр Управления</title>
+  <title>Симулятор Выборов — Диспетчерская Избиркома</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body id="appBody">
 
-  <!-- Верхняя панель управления -->
-  <header id="gameHeader" class="hidden">
-    <div class="header-left">
-      <div class="country-pill">
-        <span id="countryFlag" class="flag-icon"></span>
-        <div class="country-meta">
-          <span id="countryName" class="country-title"></span>
-          <span id="systemName" class="system-badge"></span>
-        </div>
-      </div>
-
-      <div class="party-pill">
-        <span id="partyIcon" class="party-emoji"></span>
-        <div class="party-meta">
-          <span id="partyName" class="party-title"></span>
-          <span id="partyBuffs" class="buffs-preview"></span>
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ С ДИСПЕТЧЕРСКИМИ ПРИБОРАМИ -->
+  <header id="gameHeader">
+    <div class="header-section left-box">
+      <div class="role-badge" id="roleBadge">РЕЖИМ: КУРАТОР</div>
+      <div class="jurisdiction-pill">
+        <span id="countryFlag">🇷🇺</span>
+        <div>
+          <div id="countryName" class="bold-text">Россия</div>
+          <div id="partyName" class="sub-text">«Единая Россия»</div>
         </div>
       </div>
     </div>
 
-    <!-- Ресурсы и валюты -->
-    <div class="currencies-container">
-      <div class="currency-badge currency-votes" title="Вброшенные голоса">
-        <span class="currency-icon">🗳️</span>
-        <div class="currency-info">
-          <span class="currency-label">Бюллетени</span>
-          <span id="fakedVotesDisplay" class="currency-val">0</span>
+    <!-- ТАЙМЕР ВЫБОРОВ И ФАЗЫ ДНЯ -->
+    <div class="header-section time-box">
+      <div class="time-readout">
+        <span id="clockDisplay" class="clock">08:00</span>
+        <span id="dayPhaseBadge" class="phase-badge">ФАЗА: УТРЕННИЙ ПРИВОД</span>
+      </div>
+      <div class="time-controls">
+        <button class="btn-speed active" data-speed="1">1x</button>
+        <button class="btn-speed" data-speed="2">2x</button>
+        <button class="btn-speed" data-speed="5">5x</button>
+        <button id="btnPauseToggle" class="btn-speed">⏸</button>
+      </div>
+    </div>
+
+    <!-- БАНКОВСКИЕ СЧЕТА И ВАЛЮТЫ -->
+    <div class="header-section finance-box">
+      <div class="currency-cell" title="Вброшенные голоса или раскрытые нарушения">
+        <span class="icon">🗳️</span>
+        <div>
+          <div class="curr-title" id="primaryMetricTitle">Вброшено</div>
+          <div id="metricVotesVal" class="curr-val">0</div>
         </div>
       </div>
-
-      <div class="currency-badge currency-cash" title="Грязный кэш / Откаты">
-        <span class="currency-icon">💵</span>
-        <div class="currency-info">
-          <span class="currency-label">Откаты / Кэш</span>
-          <span id="corruptionFundsDisplay" class="currency-val">$0</span>
+      <div class="currency-cell" title="Теневой избирательный фонд / Кэш">
+        <span class="icon">💵</span>
+        <div>
+          <div class="curr-title">Черный Кэш</div>
+          <div id="metricCashVal" class="curr-val cash-color">$1,500</div>
         </div>
       </div>
-
-      <div class="prestige-badge" title="Выиграно выборов (дает +50% ко всем множителям за каждую победу)">
-        <span class="prestige-icon">🏆</span>
-        <div class="currency-info">
-          <span class="currency-label">Побед</span>
-          <span id="wonElectionsDisplay" class="currency-val">0</span>
+      <div class="currency-cell" title="Официальный белый бюджет кампании">
+        <span class="icon">🏛️</span>
+        <div>
+          <div class="curr-title">Госбюджет</div>
+          <div id="metricBudgetVal" class="curr-val">$10,000</div>
         </div>
       </div>
     </div>
 
-    <!-- Шкала Палева (Suspicion Meter) -->
-    <div class="suspicion-container">
-      <div class="suspicion-header">
-        <span class="suspicion-label">ШКАЛА ПАЛЕВА</span>
-        <span id="suspicionValue" class="suspicion-percent">0%</span>
+    <!-- ШКАЛА ПАЛЕВА / ВРАЖДЕБНОСТИ КОМИССИИ -->
+    <div class="header-section alert-box">
+      <div class="suspicion-top">
+        <span id="suspicionLabel">ПАЛЕВО / РЕЗОНАНС</span>
+        <span id="suspicionVal" class="bold-mono">0%</span>
       </div>
-      <div class="suspicion-track">
-        <div id="suspicionBar" class="suspicion-fill" style="width: 0%;"></div>
+      <div class="meter-track">
+        <div id="suspicionBar" class="meter-fill" style="width: 0%;"></div>
       </div>
-      <div class="suspicion-thresholds">
-        <span>0% Чисто</span>
-        <span>50% Проверки</span>
-        <span>100% Заморозка</span>
+      <div class="meter-subtext">
+        <span>0% ТИШИНА</span>
+        <span>50% ПРОВЕРКИ</span>
+        <span class="danger-text">100% АРЕСТ/СКАНДАЛ</span>
       </div>
     </div>
 
-    <div class="header-right">
-      <button id="btnSwitchCampaign" class="btn-ghost">Кампания</button>
+    <div class="header-section right-box">
+      <button id="btnSoundToggle" class="btn-tool">🔊</button>
+      <button id="btnSwitchSide" class="btn-tool accent-btn">Сменить роль</button>
+      <button id="btnNewCampaign" class="btn-tool">Новая игра</button>
     </div>
   </header>
 
-  <!-- Баннер тревоги / Заморозки при скандале -->
-  <div id="scandalBanner" class="scandal-banner hidden">
-    🚨 <strong>СКАНДАЛ И ПРОВЕРКА ЦИК!</strong> Превышен порог палева (100%). Все вбросы заморожены до завершения аудита!
-    <span id="scandalTimer">10 сек</span>
+  <!-- БАННЕР ЧРЕЗВЫЧАЙНОЙ СИТУАЦИИ -->
+  <div id="alertBanner" class="alert-banner hidden">
+    <span class="alarm-icon">🚨</span>
+    <span id="alertBannerText">СИТУАЦИЯ ВЫШЛА ИЗ-ПОД КОНТРОЛЯ! НА УЧАСТКАХ РАБОТАЮТ СЛЕДОВАТЕЛИ!</span>
   </div>
 
-  <!-- Основное игровое поле -->
-  <main id="gameWorkspace" class="workspace hidden">
-    
-    <!-- Центральная интерактивная зона манипуляций -->
-    <section class="central-station">
-      <div class="system-briefing" id="systemBriefing"></div>
+  <!-- ОСНОВНОЙ РАБОЧИЙ ЭКРАН (3-КОЛОНОЧНЫЙ ДИСПЕТЧЕРСКИЙ ЦЕНТР) -->
+  <main class="dispatch-grid">
 
-      <!-- Главная кнопка ручного кликера -->
-      <div class="clicker-section">
-        <div class="clicker-wrapper">
-          <button id="btnManualDrop" class="btn-drop">
-            <span class="btn-drop-icon">📥</span>
-            <span class="btn-drop-title">Вбросить пачку</span>
-            <span class="btn-drop-subtitle">+<span id="clickPowerDisplay">1</span> бюлл.</span>
+    <!-- КОЛОНКА 1: ФИНАНСИРОВАНИЕ, СВЯЗИ И ОПЕРАЦИИ -->
+    <aside class="dispatch-col left-col">
+      
+      <!-- Способы заработка кэша -->
+      <section class="card panel-box">
+        <h3 class="panel-header">💰 Источники теневого кэша</h3>
+        <div class="cash-actions-grid">
+          <button id="btnEmbezzleBudget" class="btn-action-cash" title="Перевести часть официального бюджета в теневой кэш">
+            <span class="act-title">Распил госбюджета</span>
+            <span class="act-cost">-$1,000 фонд ➔ +$800 кэш</span>
+            <span class="act-risk">+3% палева</span>
           </button>
-          <!-- Контейнер для вылетающих цифр -->
-          <div id="floatingNumbersContainer" class="floating-container"></div>
-        </div>
 
-        <div class="metrics-row">
-          <div class="metric-card">
-            <span class="metric-title">Авто-вброс:</span>
-            <span id="passiveIncomeDisplay" class="metric-value">0 / сек</span>
+          <button id="btnOligarchDonation" class="btn-action-cash" title="Запросить пожертвование у дружественных олигархов">
+            <span class="act-title">Транш от Олигарха</span>
+            <span class="act-cost">Откат контрактом ➔ +$2,500 кэш</span>
+            <span class="act-risk">+7% палева</span>
+          </button>
+
+          <button id="btnMunicipalTender" class="btn-action-cash" title="Списать деньги через тендер на благоустройство и перекладку плитки">
+            <span class="act-title">Тендер на бордюры</span>
+            <span class="act-cost">Муниципальный заказ ➔ +$5,000 кэш</span>
+            <span class="act-risk">+14% палева</span>
+          </button>
+
+          <button id="btnShakedownBusiness" class="btn-action-cash" title="Налоговая инспекция посещает коммерсантов района">
+            <span class="act-title">Побор с бизнеса</span>
+            <span class="act-cost">Проверка рынков ➔ +$1,200 кэш</span>
+            <span class="act-risk">+8% палева</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Телефонная книга связей и кураторов -->
+      <section class="card panel-box">
+        <h3 class="panel-header">📱 Телефонная книга куратора</h3>
+        <div class="rolodex-list">
+          <div class="contact-card">
+            <div class="contact-info">
+              <strong>Мэрия / Администрация</strong>
+              <small>Требует явку 80%+. Защищает от прокуратуры.</small>
+            </div>
+            <button class="btn-call" data-contact="admin">Вызов ($3,000)</button>
           </div>
-          <div class="metric-card">
-            <span class="metric-title">Скрытность:</span>
-            <span id="stealthMultiplierDisplay" class="metric-value">x1.00</span>
+
+          <div class="contact-card">
+            <div class="contact-info">
+              <strong>Начальник РОВД</strong>
+              <small>Удаляет независимых наблюдателей по рапорту.</small>
+            </div>
+            <button class="btn-call" data-contact="police">Наряд ($1,200)</button>
           </div>
-          <div class="metric-card">
-            <span class="metric-title">Бонус побед:</span>
-            <span id="prestigeMultiplierDisplay" class="metric-value">+0%</span>
+
+          <div class="contact-card">
+            <div class="contact-info">
+              <strong>Главврач горбольницы</strong>
+              <small>Голосование 100% лежачих больных закрытого УИК.</small>
+            </div>
+            <button class="btn-call" data-contact="hospital">Спецурна ($800)</button>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-info">
+              <strong>Директор автобусного парка</strong>
+              <small>Организует карусели из 15 ПАЗиков с рабочими.</small>
+            </div>
+            <button class="btn-call" data-contact="bus">Карусель ($1,500)</button>
           </div>
         </div>
+      </section>
 
-        <!-- Конвертер: Отмывание голосов в кэш -->
-        <div class="launder-card">
-          <div class="launder-info">
-            <h4>Отмыть голоса в Кэш</h4>
-            <p>Конвертируйте 100 бюллетеней в теневой бюджет через фиктивные контракты.</p>
+      <!-- Запуск микроигры -->
+      <section class="card panel-box stealth-action-box">
+        <h3 class="panel-header">🕹️ Ручная спецоперация</h3>
+        <p class="sub-text">Личный выезд на ключевой участок с пачкой бюллетеней.</p>
+        <button id="btnStartMinigame" class="btn-minigame">
+          Вброс с проверкой реакции (Мини-игра)
+        </button>
+      </section>
+    </aside>
+
+    <!-- КОЛОНКА 2: ИНТЕРАКТИВНАЯ КАРТА УИК И ГРАФИК ШПИЛЬКИНА -->
+    <section class="dispatch-col center-col">
+      
+      <!-- Панель статуса округа -->
+      <div class="card status-bar-card">
+        <div class="status-metric">
+          <span class="label">ОБРАБОТАНО УИК:</span>
+          <span id="uiProcessedPrecincts" class="value">0 / 16</span>
+        </div>
+        <div class="status-metric">
+          <span class="label">ОФИЦИАЛЬНАЯ ЯВКА:</span>
+          <span id="uiOfficialTurnout" class="value">0.0%</span>
+        </div>
+        <div class="status-metric">
+          <span class="label">РЕАЛЬНАЯ ЯВКА:</span>
+          <span id="uiRealTurnout" class="value">0.0%</span>
+        </div>
+        <div class="status-metric">
+          <span class="label">ОППОЗИЦИЯ (УМНОЕ ГОЛОСОВАНИЕ):</span>
+          <span id="uiSmartVoteShare" class="value danger-text">0.0%</span>
+        </div>
+      </div>
+
+      <!-- Карта участков (Сетка с типами и статусами) -->
+      <div class="card map-card">
+        <div class="map-header">
+          <h3>Интерактивная карта участков округа (16 УИК)</h3>
+          <span class="map-hint">Кликните по участку для инспекции и спецдействий</span>
+        </div>
+        <div id="precinctsGrid" class="precincts-grid"></div>
+      </div>
+
+      <!-- Инспектор выбранного УИК -->
+      <div id="precinctInspector" class="card inspector-card">
+        <div class="inspector-header">
+          <div>
+            <h4 id="inspTitle">УИК №1401 — Общеобразовательная школа №12</h4>
+            <span id="inspTypeBadge" class="badge">ШКОЛА</span>
           </div>
-          <div class="launder-action">
-            <button id="btnLaunderVotes" class="btn-launder">
-              Отмыть 100 🗳️ ➔ <span id="launderRewardDisplay">+$100</span>
-            </button>
+          <div class="inspector-quick-stats">
+            <span>Лояльность комиссии: <strong id="inspLoyalty">85%</strong></span>
+            <span>Наблюдатели: <strong id="inspObservers">1 чел.</strong></span>
           </div>
+        </div>
+        <div class="inspector-body">
+          <div class="insp-numbers">
+            <div>Избирателей: <strong id="inspVotersTotal">2,200</strong></div>
+            <div>Реально пришло: <strong id="inspRealVoted">310</strong></div>
+            <div>Вброшено по бумаге: <strong id="inspFakeVoted" class="accent-text">0</strong></div>
+            <div>Оборудование: <strong id="inspEquipment">Обычные урны</strong></div>
+          </div>
+          <div class="insp-actions" id="inspActionButtons">
+            <button class="btn-insp" data-action="bribeChair">Подкупить председателя ($400)</button>
+            <button class="btn-insp" data-action="deployObserver">Заслать наблюдателя ($300)</button>
+            <button class="btn-insp" data-action="cutPower">Отключить свет ($500)</button>
+            <button class="btn-insp" data-action="sanitize">Санобработка / Обед ($350)</button>
+            <button class="btn-insp accent-btn" data-action="instantDrop">Точечный вброс (+150)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- График Шпилькина (Canvas) -->
+      <div class="card shpilkin-card">
+        <div class="shpilkin-top">
+          <h4>МАТЕМАТИЧЕСКИЙ АНАЛИЗ РАСПРЕДЕЛЕНИЯ (ГРАФИК ШПИЛЬКИНА)</h4>
+          <span id="shpilkinStatusBadge" class="status-pill green">Норма: Колокол Гаусса</span>
+        </div>
+        <canvas id="shpilkinChartCanvas" width="620" height="180"></canvas>
+        <div class="shpilkin-footer">
+          <span>Ось X: Явка на участках (0% – 100%)</span>
+          <span>Ось Y: Результат партии власти (0% – 100%)</span>
+          <span id="shpilkinTailScore">Индекс аномальности: 0.0</span>
         </div>
       </div>
     </section>
 
-    <!-- Шаг 4: Правая панель "Прокачка участка" -->
-    <aside class="upgrades-panel">
-      <div class="panel-header">
-        <h3>Прокачка участка</h3>
-        <p class="panel-sub">Модернизация конвейера и защита от разоблачений</p>
-      </div>
+    <!-- КОЛОНКА 3: ДЕРЕВО ТЕХНОЛОГИЙ, РАЗВЕДКА И ЛЕНТА ОППОЗИЦИИ -->
+    <aside class="dispatch-col right-col">
+      
+      <!-- Дерево технологий / Ветки прокачки -->
+      <section class="card panel-box tech-tree-panel">
+        <h3 class="panel-header">🧬 Дерево электоральных технологий</h3>
+        <div class="tree-tabs">
+          <button class="tree-tab-btn active" data-tab="admin">Админресурс</button>
+          <button class="tree-tab-btn" data-tab="deg">ДЭГ / IT</button>
+          <button class="tree-tab-btn" data-tab="force">Силовики</button>
+        </div>
+        <div id="techBranchContainer" class="tech-nodes-list"></div>
+      </section>
 
-      <!-- Табы магазина -->
-      <div class="shop-tabs">
-        <button id="tabMachinations" class="tab-btn active">Махинации (🗳️)</button>
-        <button id="tabConspiracy" class="tab-btn">Конспирация (💵)</button>
-      </div>
+      <!-- Туман войны и разведданные -->
+      <section class="card panel-box intel-box">
+        <h3 class="panel-header">🛰️ Разведка и туман войны</h3>
+        <p class="sub-text">Точные настроения избирателей скрыты без покупки соцопросов.</p>
+        <div class="intel-readout" id="intelReadout">
+          <div>Оценка экзит-поллов: <strong id="intelExitPoll">ДАННЫЕ ЗАСЕКРЕЧЕНЫ</strong></div>
+          <div>Погрешность замера: <strong id="intelMargin">±18.5%</strong></div>
+        </div>
+        <div class="intel-buttons">
+          <button id="btnBuyPoll" class="btn-intel">Купить закрытый замер ВЦИОМ ($600)</button>
+          <button id="btnWiretapOpposition" class="btn-intel">Прослушка штаба оппозиции ($1,400)</button>
+        </div>
+      </section>
 
-      <!-- Контейнеры списков улучшений -->
-      <div id="machinationsList" class="shop-list"></div>
-      <div id="conspiracyList" class="shop-list hidden"></div>
+      <!-- Активность оппозиции и журнал инцидентов -->
+      <section class="card panel-box incident-feed-box">
+        <h3 class="panel-header">⚠️ Сводка контрударов оппозиции</h3>
+        <div id="incidentLog" class="incident-log"></div>
+      </section>
     </aside>
 
   </main>
 
-  <!-- Модальное окно выбора кампании -->
-  <div id="campaignModal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2>Центр электоральных манипуляций</h2>
-        <p>Выберите юрисдикцию и политическую силу для запуска кампании</p>
+  <!-- БЕГУЩАЯ НОВОСТНАЯ СТРОКА -->
+  <footer class="news-ticker-bar">
+    <div class="ticker-badge">СРОЧНЫЙ ЭФИР</div>
+    <div class="ticker-viewport">
+      <div id="tickerTrack" class="ticker-track"></div>
+    </div>
+  </footer>
+
+  <!-- МОДАЛЬНОЕ ОКНО МИНИ-ИГРЫ «ВБРОС В ЩЕЛЬ ПОКА НАБЛЮДАТЕЛЬ ОТВЕРНУЛСЯ» -->
+  <div id="minigameModal" class="modal-overlay hidden">
+    <div class="minigame-card">
+      <div class="minigame-header">
+        <h3 id="minigameTitle">ОПЕРАЦИЯ: РУЧНОЙ ВБРОС</h3>
+        <button id="btnCloseMinigame" class="btn-close">✕</button>
+      </div>
+      <p class="minigame-instructions" id="minigameDesc">
+        Зажмите пробел или кнопку мыши, чтобы пропихивать бюллетени в щель урны. Когда наблюдатель смотрит прямо на вас — немедленно отпустите, иначе поймают с поличным!
+      </p>
+      
+      <div class="minigame-arena">
+        <div class="observer-vision-bar">
+          <span>Внимание наблюдателя:</span>
+          <div class="vision-track">
+            <div id="visionFill" class="vision-fill"></div>
+          </div>
+          <span id="visionStateText" class="vision-state safe">СМОТРИТ В ТЕЛЕФОН (БЕЗОПАСНО)</span>
+        </div>
+
+        <div class="ballot-insertion-visual">
+          <div class="ballot-box-visual">
+            <div class="slot"></div>
+            <div id="ballotStackVisual" class="ballot-paper"></div>
+          </div>
+        </div>
+
+        <div class="minigame-progress-row">
+          <span>Успешно вброшено: <strong id="miniSuccessCount">0</strong> / 20</span>
+          <span>Риск провала: <strong id="miniRiskPct" class="danger-text">0%</strong></span>
+        </div>
       </div>
 
-      <section class="selection-step" id="stepCountry">
-        <h3 class="step-title">1. Выберите страну и систему выборов</h3>
-        <div class="country-grid" id="countryGrid"></div>
-      </section>
-
-      <section class="selection-step hidden" id="stepParty">
-        <div class="step-header-row">
-          <h3 class="step-title">2. Выберите партию</h3>
-          <button id="btnBackToCountries" class="btn-link">← Сменить страну</button>
-        </div>
-        <div class="party-grid" id="partyGrid"></div>
-      </section>
-
-      <div class="modal-actions">
-        <button id="btnStartGame" class="btn-primary" disabled>Начать кампанию</button>
+      <div class="minigame-controls">
+        <button id="btnHoldDrop" class="btn-primary minigame-hold-btn">ЗАЖАТЬ ДЛЯ ВБРОСА</button>
       </div>
     </div>
   </div>
 
-  <!-- Кнопка сброса сохранения в углу экрана -->
-  <button id="btnHardReset" class="btn-hard-reset" title="Полный сброс сохранения">Сбросить сохранение ⚠️</button>
+  <!-- МОДАЛЬНОЕ ОКНО ВХОДЯЩЕГО ЗВОНКА ОТ НАЧАЛЬСТВА -->
+  <div id="callModal" class="modal-overlay hidden">
+    <div class="call-card">
+      <div class="call-badge">ЗВОНОК ПО ЗАКРЫТОЙ ЛИНИИ</div>
+      <h3 id="callSpeaker">Генерал-майор / Куратор АП</h3>
+      <p id="callMessage">«Слушай сюда. На УИК №1408 явка проваливается ниже 25%. У тебя 90 секунд, чтобы там было 70%, иначе на твое место уже готов приказ о назначении нового человека.»</p>
+      <div class="call-timer-box">
+        <span>Времени на выполнение: <strong id="callTimeLeft">90с</strong></span>
+      </div>
+      <div class="call-actions">
+        <button id="btnAcceptCallTask" class="btn-primary">Принять распоряжение (Премия +$4,000)</button>
+        <button id="btnDeclineCallTask" class="btn-ghost">Сослаться на помехи (+25% к палеву)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН ИТОГОВ ВЫБОРОВ (ТРИУМФ / ТРИБУНАЛ) -->
+  <div id="endgameModal" class="modal-overlay hidden">
+    <div id="endgameCard" class="endgame-card">
+      <div id="endgameStamp" class="stamp-box">ПРОТОКОЛ УТВЕРЖДЕН</div>
+      <h2 id="endgameTitle">ИСТОРИЧЕСКИЙ ТРИУМФ КАНДИДАТА</h2>
+      <p id="endgameSubtitle" class="sub-text">Кампания завершена. Избирательная комиссия подписала сводный протокол №1.</p>
+      
+      <div class="newspaper-box">
+        <div class="news-top">ЭКСТРЕННЫЙ ВЫПУСК ВЕСТНИКА ЦИК</div>
+        <h3 id="newsPaperHeadline">ИТОГИ ГОЛОСОВАНИЯ ПРИЗНАНЫ БЕЗУПРЕЧНЫМИ</h3>
+        <p id="newsPaperBody">Несмотря на провокации отдельных групп, выборы прошли при образцовой явке. Искусственный интеллект и КОИБы не зафиксировали ни одной системной аномалии.</p>
+      </div>
+
+      <div class="endgame-stats-grid">
+        <div class="stat-cell">
+          <span>Официальный процент:</span>
+          <strong id="endStatOfficial">86.4%</strong>
+        </div>
+        <div class="stat-cell">
+          <span>Реальная поддержка:</span>
+          <strong id="endStatReal">21.8%</strong>
+        </div>
+        <div class="stat-cell">
+          <span>Всего фальсификата:</span>
+          <strong id="endStatFake">14,200 бюлл.</strong>
+        </div>
+        <div class="stat-cell">
+          <span>Освоено теневого кэша:</span>
+          <strong id="endStatCash">$48,500</strong>
+        </div>
+      </div>
+
+      <div class="endgame-actions">
+        <button id="btnRestartCampaign" class="btn-primary">Начать новую кампанию</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО СТАРТА И ВЫБОРА РЕЖИМА/СТРАНЫ -->
+  <div id="startModal" class="modal-overlay">
+    <div class="start-card">
+      <h2>ЦЕНТР УПРАВЛЕНИЯ ЭЛЕКТОРАЛЬНЫМИ КАМПАНИЯМИ</h2>
+      <p class="sub-text">Выберите роль в избирательном процессе и геополитическую юрисдикцию</p>
+      
+      <div class="role-selector-row">
+        <div class="role-card selected" data-role="curator">
+          <div class="role-icon">🕶️</div>
+          <h4>КУРАТОР ОТ ВЛАСТИ</h4>
+          <p>Обеспечьте победу любой ценой: вбросы, карусели, ДЭГ, координация силовиков и удержание низкого палева.</p>
+        </div>
+        <div class="role-card" data-role="observer">
+          <div class="role-icon">👁️</div>
+          <h4>НЕЗАВИСИМЫЙ НАБЛЮДАТЕЛЬ</h4>
+          <p>Поймайте махинаторов за руку: сверяйте пломбы сейф-пакетов, щелкайте кликером явку и пишите жалобы в суд.</p>
+        </div>
+      </div>
+
+      <div class="country-select-box">
+        <h4>Юрисдикция выборов:</h4>
+        <div class="country-pills-row" id="countryPills"></div>
+      </div>
+
+      <button id="btnLaunchGame" class="btn-primary full-width">ПРИСТУПИТЬ К УПРАВЛЕНИЮ</button>
+    </div>
+  </div>
 
   <script src="game.js"></script>
 </body>
