@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Симулятор Выборов — Центр Управления</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Верхняя панель управления -->
+  <header id="gameHeader" class="hidden">
+    <div class="header-left">
+      <div class="country-pill">
+        <span id="countryFlag" class="flag-icon"></span>
+        <div class="country-meta">
+          <span id="countryName" class="country-title"></span>
+          <span id="systemName" class="system-badge"></span>
+        </div>
+      </div>
+
+      <div class="party-pill">
+        <span id="partyIcon" class="party-emoji"></span>
+        <div class="party-meta">
+          <span id="partyName" class="party-title"></span>
+          <span id="partyBuffs" class="buffs-preview"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ресурсы и валюты -->
+    <div class="currencies-container">
+      <div class="currency-badge currency-votes" title="Вброшенные голоса">
+        <span class="currency-icon">🗳️</span>
+        <div class="currency-info">
+          <span class="currency-label">Бюллетени</span>
+          <span id="fakedVotesDisplay" class="currency-val">0</span>
+        </div>
+      </div>
+
+      <div class="currency-badge currency-cash" title="Грязный кэш / Откаты">
+        <span class="currency-icon">💵</span>
+        <div class="currency-info">
+          <span class="currency-label">Откаты / Кэш</span>
+          <span id="corruptionFundsDisplay" class="currency-val">$0</span>
+        </div>
+      </div>
+
+      <div class="prestige-badge" title="Выиграно выборов (дает +50% ко всем множителям за каждую победу)">
+        <span class="prestige-icon">🏆</span>
+        <div class="currency-info">
+          <span class="currency-label">Побед</span>
+          <span id="wonElectionsDisplay" class="currency-val">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Шкала Палева (Suspicion Meter) -->
+    <div class="suspicion-container">
+      <div class="suspicion-header">
+        <span class="suspicion-label">ШКАЛА ПАЛЕВА</span>
+        <span id="suspicionValue" class="suspicion-percent">0%</span>
+      </div>
+      <div class="suspicion-track">
+        <div id="suspicionBar" class="suspicion-fill" style="width: 0%;"></div>
+      </div>
+      <div class="suspicion-thresholds">
+        <span>0% Чисто</span>
+        <span>50% Проверки</span>
+        <span>100% Заморозка</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button id="btnSwitchCampaign" class="btn-ghost">Кампания</button>
+    </div>
+  </header>
+
+  <!-- Баннер тревоги / Заморозки при скандале -->
+  <div id="scandalBanner" class="scandal-banner hidden">
+    🚨 <strong>СКАНДАЛ И ПРОВЕРКА ЦИК!</strong> Превышен порог палева (100%). Все вбросы заморожены до завершения аудита!
+    <span id="scandalTimer">10 сек</span>
+  </div>
+
+  <!-- Основное игровое поле -->
+  <main id="gameWorkspace" class="workspace hidden">
+    
+    <!-- Центральная интерактивная зона манипуляций -->
+    <section class="central-station">
+      <div class="system-briefing" id="systemBriefing"></div>
+
+      <!-- Главная кнопка ручного кликера -->
+      <div class="clicker-section">
+        <div class="clicker-wrapper">
+          <button id="btnManualDrop" class="btn-drop">
+            <span class="btn-drop-icon">📥</span>
+            <span class="btn-drop-title">Вбросить пачку</span>
+            <span class="btn-drop-subtitle">+<span id="clickPowerDisplay">1</span> бюлл.</span>
+          </button>
+          <!-- Контейнер для вылетающих цифр -->
+          <div id="floatingNumbersContainer" class="floating-container"></div>
+        </div>
+
+        <div class="metrics-row">
+          <div class="metric-card">
+            <span class="metric-title">Авто-вброс:</span>
+            <span id="passiveIncomeDisplay" class="metric-value">0 / сек</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Скрытность:</span>
+            <span id="stealthMultiplierDisplay" class="metric-value">x1.00</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Бонус побед:</span>
+            <span id="prestigeMultiplierDisplay" class="metric-value">+0%</span>
+          </div>
+        </div>
+
+        <!-- Конвертер: Отмывание голосов в кэш -->
+        <div class="launder-card">
+          <div class="launder-info">
+            <h4>Отмыть голоса в Кэш</h4>
+            <p>Конвертируйте 100 бюллетеней в теневой бюджет через фиктивные контракты.</p>
+          </div>
+          <div class="launder-action">
+            <button id="btnLaunderVotes" class="btn-launder">
+              Отмыть 100 🗳️ ➔ <span id="launderRewardDisplay">+$100</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Шаг 4: Правая панель "Прокачка участка" -->
+    <aside class="upgrades-panel">
+      <div class="panel-header">
+        <h3>Прокачка участка</h3>
+        <p class="panel-sub">Модернизация конвейера и защита от разоблачений</p>
+      </div>
+
+      <!-- Табы магазина -->
+      <div class="shop-tabs">
+        <button id="tabMachinations" class="tab-btn active">Махинации (🗳️)</button>
+        <button id="tabConspiracy" class="tab-btn">Конспирация (💵)</button>
+      </div>
+
+      <!-- Контейнеры списков улучшений -->
+      <div id="machinationsList" class="shop-list"></div>
+      <div id="conspiracyList" class="shop-list hidden"></div>
+    </aside>
+
+  </main>
+
+  <!-- Модальное окно выбора кампании -->
+  <div id="campaignModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Центр электоральных манипуляций</h2>
+        <p>Выберите юрисдикцию и политическую силу для запуска кампании</p>
+      </div>
+
+      <section class="selection-step" id="stepCountry">
+        <h3 class="step-title">1. Выберите страну и систему выборов</h3>
+        <div class="country-grid" id="countryGrid"></div>
+      </section>
+
+      <section class="selection-step hidden" id="stepParty">
+        <div class="step-header-row">
+          <h3 class="step-title">2. Выберите партию</h3>
+          <button id="btnBackToCountries" class="btn-link">← Сменить страну</button>
+        </div>
+        <div class="party-grid" id="partyGrid"></div>
+      </section>
+
+      <div class="modal-actions">
+        <button id="btnStartGame" class="btn-primary" disabled>Начать кампанию</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Кнопка сброса сохранения в углу экрана -->
+  <button id="btnHardReset" class="btn-hard-reset" title="Полный сброс сохранения">Сбросить сохранение ⚠️</button>
+
+  <script src="game.js"></script>
+</body>
+</html>
